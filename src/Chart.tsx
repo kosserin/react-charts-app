@@ -554,6 +554,8 @@ export default function PortfolioSimulator() {
     const bestYRef = React.useRef<number>(0)
     const chartRef = React.useRef(null);
 
+    const { width } = useWindowSize()
+    const isMobile = width < 1000
 
     // Reset tooltip index when data changes to show the last point
     React.useEffect(() => {
