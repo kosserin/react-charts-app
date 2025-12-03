@@ -874,7 +874,11 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                         flexDirection: "column",
                     }}
                 >
-                    <div style={{ flex: 1, minHeight: 300 }}>
+                    <div style={{
+                        flex: 1,
+                        minHeight: 300,
+                        pointerEvents: isAnimating ? "none" : "auto"
+                    }}>
                         <ResponsiveContainer ref={chartRef} width="100%" height={isMobile ? 500 : '100%'}>
                             <AreaChart
                             onMouseMove={(state: any) => {
