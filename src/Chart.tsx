@@ -921,16 +921,16 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                 {/* Area fills - render behind lines */}
                                 <defs>
                                     <linearGradient id="bestGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor={COLORS.best} stopOpacity={0.3} />
-                                        <stop offset="100%" stopColor={COLORS.best} stopOpacity={0} />
+                                        <stop offset="0%" stopColor={COLORS.best} stopOpacity={0} />
+                                        <stop offset="100%" stopColor="#FFFFFF" stopOpacity={1} />
                                     </linearGradient>
                                     <linearGradient id="expectedGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor={COLORS.expected} stopOpacity={0.3} />
-                                        <stop offset="100%" stopColor={COLORS.expected} stopOpacity={0} />
+                                        <stop offset="0%" stopColor={COLORS.expected} stopOpacity={0} />
+                                        <stop offset="100%" stopColor="#FFFFFF" stopOpacity={1} />
                                     </linearGradient>
                                     <linearGradient id="worstGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor={COLORS.worst} stopOpacity={0.6} />
-                                        <stop offset="100%" stopColor={COLORS.worst} stopOpacity={0} />
+                                        <stop offset="0%" stopColor={COLORS.worst} stopOpacity={0} />
+                                        <stop offset="100%" stopColor="#FFFFFF" stopOpacity={1} />
                                     </linearGradient>
                                 </defs>
                                 
