@@ -940,14 +940,6 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     dataKey="best"
                                     stroke={COLORS.best}
                                     strokeDasharray="6 6"
-                                    // dot={(props) => {
-                                    //     if (props.index === tooltipIndex) {
-                                    //         return (
-                                    //             <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.best} />
-                                    //         )
-                                    //     }
-                                    //     return null
-                                    // }}
                                     dot={false}
                                     strokeWidth={2}
                                     activeDot={renderActiveDot}
@@ -959,14 +951,6 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     animationDuration={200}
                                     dataKey="expected"
                                     stroke={COLORS.expected}
-                                    // dot={(props) => {
-                                    //     if (props.index === tooltipIndex) {
-                                    //         return (
-                                    //             <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.expected} />
-                                    //         )
-                                    //     }
-                                    //     return null
-                                    // }}
                                     dot={false}
                                     strokeWidth={3}
                                     activeDot={(props) => isAnimating ? null : <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.expected} />}
@@ -979,14 +963,6 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     dataKey="cash"
                                     stroke={COLORS.cash}
                                     activeDot={(props) => isAnimating ? null : <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.cash} />}
-                                    // dot={(props) => {
-                                    //     if (props.index === tooltipIndex) {
-                                    //         return (
-                                    //             <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.cash} />
-                                    //         )
-                                    //     }
-                                    //     return null
-                                    // }}
                                     dot={false}
                                     strokeWidth={3}
                                     fill="transparent"
@@ -997,14 +973,6 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     dataKey="worst"
                                     stroke={COLORS.worst}
                                     strokeDasharray="6 6"
-                                    // dot={(props) => {
-                                    //     if (props.index === tooltipIndex) {
-                                    //         return (
-                                    //             <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.worst} />
-                                    //         )
-                                    //     }
-                                    //     return null
-                                    // }}
                                     dot={false}
                                     strokeWidth={2}
                                     activeDot={(props) => isAnimating ? null : <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.worst} />}
