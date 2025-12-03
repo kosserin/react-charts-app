@@ -373,7 +373,6 @@ function Slider({
                         (100 * (internalValue - sliderMin)) /
                         (sliderMax - sliderMin)
                     }%)`,
-                    outline: "none",
                 }}
             />
         </>
@@ -566,8 +565,6 @@ export default function PortfolioSimulator() {
             setIsAnimating(false);
 
             // 3. Wait for React to re-enable the Tooltip (active={true})
-            // requestAnimationFrame(() => {
-                // requestAnimationFrame(() => {
                     const container = chartRef.current;
 
                     if (container) {
@@ -584,6 +581,12 @@ export default function PortfolioSimulator() {
                         console.log('SVG rect:', rect);
                         console.log('Data length:', data.length);
 
+                        // Find the legend element to get its height
+                        const legendElement = element.querySelector('.recharts-legend-wrapper');
+                        console.log('legendElement', legendElement);
+                        const legendHeight = legendElement ? legendElement.getBoundingClientRect().height + 64 : 0;
+                        console.log('Legend height:', legendHeight);
+
                         // Calculate the X position of the last data point
                         // Chart width minus left and right margins (32px each)
                         const chartWidth = rect.width - 64;
@@ -593,7 +596,12 @@ export default function PortfolioSimulator() {
                         const xPosition = rect.left + 32 + (pointSpacing * (data.length - 1));
                         const yPosition = rect.top + (rect.height / 2);
 
-                        console.log('Calculated position:', { xPosition, yPosition, pointSpacing, chartWidth });
+                        // Set tooltip Y position to bottom of chart area (before legend)
+                        // Total height - bottom margin - legend height
+                        const tooltipY = rect.height - 32 - legendHeight;
+                        setTooltipPosition({ x: 0, y: tooltipY });
+
+                        console.log('Calculated position:', { xPosition, yPosition, pointSpacing, chartWidth, tooltipY, legendHeight });
 
                         // Clear any existing tooltip state
                         svg.dispatchEvent(new MouseEvent('mouseleave', {
@@ -602,9 +610,6 @@ export default function PortfolioSimulator() {
                             view: window,
                         }));
 
-                        // Trigger tooltip at the last point
-                        // setTimeout(() => {
-                            console.log('Dispatching mousemove to SVG');
                             svg.dispatchEvent(new MouseEvent('mousemove', {
                                 bubbles: true,
                                 cancelable: true,
@@ -612,17 +617,13 @@ export default function PortfolioSimulator() {
                                 clientX: xPosition,
                                 clientY: yPosition,
                             }));
-                        // }, 0);
                     }
-                // });
-            // });
-        }, 1000); // Match animationDuration from Area components
+        }, 200);
 
         return () => clearTimeout(animationTimer);
-    }, [data, annualAmount, start, risk]);
+    }, [data, annualAmount, start, risk, isMobile]);
 
-    const { width } = useWindowSize()
-    const isMobile = width < 1000
+    console.log('isMobile', isMobile);
 
     const currentYearIndex = Math.min(20, years)
     const currentYear = age + currentYearIndex
@@ -817,16 +818,33 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
     }
 
     return (
-        <div
-            style={{
-                width: "100%",
-                height: "100%",
-                background: COLORS.bg,
-                color: COLORS.text,
-                padding: `100px ${isMobile ? 16 : 48}px`,
-                boxSizing: "border-box",
-            }}
-        >
+        <>
+            <style>{`
+                .recharts-layer:focus,
+                .recharts-area:focus,
+                .recharts-sector:focus,
+                .recharts-surface:focus,
+                .recharts-surface > g:focus,
+                .recharts-area > g:focus,
+                .recharts-area > g > g:focus,
+                .recharts-layer > g:focus,
+                .recharts-layer > g > g:focus {
+                    outline: none !important;
+                    outline-color: none;
+                    outline-style: none;
+                    outline-width: none;
+                }
+            `}</style>
+            <div
+                style={{
+                    width: "100%",
+                    height: "100%",
+                    background: COLORS.bg,
+                    color: COLORS.text,
+                    padding: `100px ${isMobile ? 16 : 48}px`,
+                    boxSizing: "border-box",
+                }}
+            >
             <div
                 style={{
                     display: isMobile ? "flex" : "grid",
@@ -857,7 +875,6 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                     <div style={{ flex: 1, minHeight: 300 }}>
                         <ResponsiveContainer ref={chartRef} width="100%" height={isMobile ? 500 : '100%'}>
                             <AreaChart
-                            key={risk}
                             onMouseMove={(state: any) => {
                                 if (state?.activeTooltipIndex !== undefined) {
                                     setTooltipIndex(parseInt(state.activeTooltipIndex));
@@ -892,7 +909,6 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     active={!isAnimating}
                                     cursor={!isAnimating ? <CustomCursor /> : false}
                                     isAnimationActive={false}
-                                    defaultIndex={data.length - 1}
                                     allowEscapeViewBox={{ x: true, y: true }}
                                     content={<CustomTooltip />}
                                 />
@@ -914,7 +930,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                 
                                 <Area
                                     type="monotone"
-                                    animationDuration={700}
+                                    animationDuration={200}
                                     dataKey="best"
                                     stroke={COLORS.best}
                                     strokeDasharray="6 6"
@@ -934,7 +950,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                 />
                                 <Area
                                     type="monotone"
-                                    animationDuration={700}
+                                    animationDuration={200}
                                     dataKey="expected"
                                     stroke={COLORS.expected}
                                     // dot={(props) => {
@@ -953,7 +969,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                 />
                                 <Area
                                     type="monotone"
-                                    animationDuration={700}
+                                    animationDuration={200}
                                     dataKey="cash"
                                     stroke={COLORS.cash}
                                     activeDot={(props) => isAnimating ? null : <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.cash} />}
@@ -971,7 +987,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                 />
                                 <Area
                                     type="monotone"
-                                    animationDuration={700}
+                                    animationDuration={200}
                                     dataKey="worst"
                                     stroke={COLORS.worst}
                                     strokeDasharray="6 6"
@@ -1118,6 +1134,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                 </div>
             </div>
         </div>
+        </>
     )
 }
 
