@@ -558,64 +558,68 @@ export default function PortfolioSimulator() {
 
     // Reset tooltip index when data changes to show the last point
     React.useEffect(() => {
-        // setIsAnimating(true)
-        // const timer = setTimeout(() => {
-        //     setIsAnimating(false)
-        //     const chartHeight = document.querySelector('.recharts-layer')!.getBoundingClientRect().height
-        //     const chartWidth = document.querySelector('.recharts-layer')!.getBoundingClientRect().width
-        //     setTooltipPosition({ x: 0, y: chartHeight})
-        // }, 1000);
-        
-        // return () => clearTimeout(timer)
+        // 1. Start Animation
         setIsAnimating(true);
-        
-        
-        // Force tooltip to last entry after animation starts
-        const timer = setTimeout(() => {
-                const chartHeight = document.querySelector('.recharts-layer')!.getBoundingClientRect().height
-                setTooltipPosition({ x: 0, y: chartHeight})
-            setIsAnimating(false);
-            
-            // Trigger synthetic mouse event at the last data point
-            if (chartRef.current) {
-            const chartContainer = chartRef.current as HTMLElement;
-            console.log('chartContainer', chartContainer.getBoundingClientRect());
-            console.log('chartContainer width', chartContainer.getBoundingClientRect().width);
-            
-            const chartHeight = chartContainer.querySelector('.recharts-layer')!.getBoundingClientRect().height;
-            console.log('chartHeight', chartHeight);
-            console.log('data.length', data.length);
-            
-            // Calculate position for last data point
-            const step = (chartContainer.clientWidth - 64) / data.length;
-            // const xPosition = step * (data.length - 1); // Adjust based on your margins
-            console.log('step', step);
-            // const xPosition = 45*4; // Adjust based on your margins
-            // const xPosition = 1459 - 32;
-            // const xPosition = 32 + (45 * data.length);
-            const xPosition = 1000;
-            // const xPosition = step * data.length - 1; // Adjust based on your margins
-            const yPosition = chartHeight / 2;
-            
-            const mouseEvent = new MouseEvent('mousemove', {
-              bubbles: true,
-              clientX: xPosition,
-              clientY: yPosition,
-            });
-            
-            console.log('mouseEvent', mouseEvent);
-            chartContainer.dispatchEvent(mouseEvent);
-          }
-        }, 1000);
-    
-        return () => clearTimeout(timer);
-    }, [data.length,annualAmount, start, risk])
 
-    React.useEffect(() => {
-        setTimeout(() => {
-            setTooltipIndex(data.length - 1)
-        }, 1000);
-    }, [data.length])
+        // 2. Wait for animation to finish (e.g., 1000ms)
+        const animationTimer = setTimeout(() => {
+            setIsAnimating(false);
+
+            // 3. Wait for React to re-enable the Tooltip (active={true})
+            // requestAnimationFrame(() => {
+                // requestAnimationFrame(() => {
+                    const container = chartRef.current;
+
+                    if (container) {
+                        const element = container as HTMLElement;
+
+                        // Find the actual SVG element inside ResponsiveContainer
+                        const svg = element.querySelector('svg');
+                        if (!svg) {
+                            console.log('SVG not found');
+                            return;
+                        }
+
+                        const rect = svg.getBoundingClientRect();
+                        console.log('SVG rect:', rect);
+                        console.log('Data length:', data.length);
+
+                        // Calculate the X position of the last data point
+                        // Chart width minus left and right margins (32px each)
+                        const chartWidth = rect.width - 64;
+                        // Distribute points evenly across the chart width
+                        const pointSpacing = chartWidth / Math.max(1, data.length - 1);
+                        // Position of last point: left edge + left margin + (spacing * last index)
+                        const xPosition = rect.left + 32 + (pointSpacing * (data.length - 1));
+                        const yPosition = rect.top + (rect.height / 2);
+
+                        console.log('Calculated position:', { xPosition, yPosition, pointSpacing, chartWidth });
+
+                        // Clear any existing tooltip state
+                        svg.dispatchEvent(new MouseEvent('mouseleave', {
+                            bubbles: true,
+                            cancelable: true,
+                            view: window,
+                        }));
+
+                        // Trigger tooltip at the last point
+                        // setTimeout(() => {
+                            console.log('Dispatching mousemove to SVG');
+                            svg.dispatchEvent(new MouseEvent('mousemove', {
+                                bubbles: true,
+                                cancelable: true,
+                                view: window,
+                                clientX: xPosition,
+                                clientY: yPosition,
+                            }));
+                        // }, 0);
+                    }
+                // });
+            // });
+        }, 1000); // Match animationDuration from Area components
+
+        return () => clearTimeout(animationTimer);
+    }, [data, annualAmount, start, risk]);
 
     const { width } = useWindowSize()
     const isMobile = width < 1000
@@ -851,13 +855,14 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                     }}
                 >
                     <div style={{ flex: 1, minHeight: 300 }}>
-                        <ResponsiveContainer width="100%" height={isMobile ? 500 : '100%'}>
+                        <ResponsiveContainer ref={chartRef} width="100%" height={isMobile ? 500 : '100%'}>
                             <AreaChart
-                            ref={chartRef}
                             key={risk}
                             onMouseMove={(state: any) => {
-                                setTooltipIndex(parseInt(state.activeTooltipIndex));
-                                console.log('on mouse move', state);
+                                if (state?.activeTooltipIndex !== undefined) {
+                                    setTooltipIndex(parseInt(state.activeTooltipIndex));
+                                    console.log('onMouseMove triggered, activeIndex:', state.activeTooltipIndex);
+                                }
                               }}
                                 data={data}
                                 // onMouseMove={handleMouseMove}
@@ -882,17 +887,14 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     x={`${currentYear}`}
                                     stroke="#11182722"
                                 /> */}
-                                <Tooltip 
-                                    // position={{ y: 0}}
+                                <Tooltip
                                     position={{ y: tooltipPosition?.y || 0 }}
-                                    // active={!isAnimating}
                                     active={!isAnimating}
                                     cursor={!isAnimating ? <CustomCursor /> : false}
-                                    // cursor={<CustomCursor />}
-                                    isAnimationActive={false} 
+                                    isAnimationActive={false}
                                     defaultIndex={data.length - 1}
                                     allowEscapeViewBox={{ x: true, y: true }}
-                                    content={<CustomTooltip />} 
+                                    content={<CustomTooltip />}
                                 />
                                 {/* Area fills - render behind lines */}
                                 <defs>
