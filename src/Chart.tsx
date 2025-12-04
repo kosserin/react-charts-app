@@ -5,7 +5,6 @@ import {
     Tooltip,
     ResponsiveContainer,
     Legend,
-    ReferenceLine,
     ActiveDotProps,
     Area,
     AreaChart,
@@ -232,7 +231,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
         <div
             style={{
                 textAlign: "left",
-                fontSize: 22,
+                fontSize: 18,
                 color: COLORS.text,
                 fontWeight: 600,
             }}
@@ -547,7 +546,6 @@ export default function PortfolioSimulator() {
     }, [data])
 
     const [tooltipIndex, setTooltipIndex] = React.useState<number>(0)
-    const [tooltipProps, setTooltipProps] = React.useState<any>(undefined)
     const [tooltipPosition, setTooltipPosition] = React.useState<{ x: number, y: number } | undefined>(undefined)
     const [isAnimating, setIsAnimating] = React.useState(false)
 
@@ -556,6 +554,13 @@ export default function PortfolioSimulator() {
 
     const { width } = useWindowSize()
     const isMobile = width < 1000
+
+    // Calculate potential return (Expected - Cash) at current tooltip index
+    const potentialReturn = React.useMemo(() => {
+        const safeIndex = Math.min(tooltipIndex, data.length - 1)
+        if (!data[safeIndex]) return 0
+        return data[safeIndex].expected - data[safeIndex].cash
+    }, [tooltipIndex, data])
 
     // Reset tooltip index when data changes to show the last point
     React.useEffect(() => {
@@ -871,15 +876,33 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                   borderRadius: COLORS.radius,
                               }),
                         display: "flex",
+                        minHeight: 300,
+                        pointerEvents: isAnimating ? "none" : "auto",
                         flexDirection: "column",
                     }}
                 >
-                    <div style={{
-                        flex: 1,
-                        minHeight: 300,
-                        pointerEvents: isAnimating ? "none" : "auto"
-                    }}>
-                        <ResponsiveContainer ref={chartRef} width="100%" height={isMobile ? 500 : '100%'}>
+                    <div style={{ padding: 32 }}>
+                        <SectionTitle>Calculate your potential 3a assets</SectionTitle>
+                    </div>
+
+                    <div style={{ position: "relative", width: "100%", flex: 1 }}>
+                        {/* Absolutely positioned title inside the chart */}
+                        <div
+                            style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 32,
+                                zIndex: 10,
+                                pointerEvents: "auto",
+                                textAlign: "left",
+                            }}
+                        >
+                            <h3 style={{ margin: 0 }}>Potential Return:</h3>
+                            <h2 style={{ margin: '8px 0 0 0', color: COLORS.bg, fontFamily: '700', lineHeight: 1, fontSize: 32 }}>CHF {fmt(potentialReturn)}</h2>
+                            <button onClick={() => alert('asaa')} style={{ backgroundColor: "rgba(0, 0, 0, 0.05)", border: "none", cursor: "pointer", borderRadius: 100, height: 36, paddingInline: 12, fontSize: 14, fontWeight: 600, lineHeight: 1 }}>Info</button>
+                        </div>
+
+                        <ResponsiveContainer ref={chartRef} width="100%" height="100%">
                             <AreaChart
                             onMouseMove={(state: any) => {
                                 if (state?.activeTooltipIndex !== undefined) {
