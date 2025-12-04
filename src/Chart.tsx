@@ -984,6 +984,8 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                     gridTemplateColumns: isMobile ? undefined : "1.8fr 1.2fr",
                     gap: isMobile ? 0 : 32,
                     height: "100%",
+                    maxWidth: 1254,
+                    margin: "0 auto",
                 }}
             >
                 {/* Chart-Panel */}
