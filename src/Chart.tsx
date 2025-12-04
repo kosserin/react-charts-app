@@ -749,12 +749,12 @@ export default function PortfolioSimulator() {
       [isAnimating]
     );
 
-    const handleMouseMove = (state: any) => {
-        if (state?.activeTooltipIndex !== undefined) {
+    const handleMouseMove = React.useCallback((state: any) => {
+        if (state?.activeTooltipIndex !== undefined && state.activeTooltipIndex !== tooltipIndex) {
             setTooltipIndex(parseInt(state.activeTooltipIndex));
             console.log('onMouseMove triggered, activeIndex:', state.activeTooltipIndex);
         }
-    }
+    }, [tooltipIndex]);
 
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (!active || !payload || payload.length === 0) {
