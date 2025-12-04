@@ -508,6 +508,7 @@ export default function PortfolioSimulator() {
     const data = React.useMemo(
         () =>
             buildData(age, annualAmount, start, years, {
+                cash: riskMeta.cash,
                 expected: riskMeta.expected,
                 best: riskMeta.best,
                 worst: riskMeta.worst,
