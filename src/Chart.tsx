@@ -82,45 +82,51 @@ const RISK_TABLE: Record<
     {
         label: string
         equityShare: number
+        cash: number
         expected: number
         best: number
-        worst: number
+        worst: number,
     }
 > = {
     defensive25: {
         label: "Defensiv 25",
         equityShare: 0.25,
-        expected: 0.025,
-        best: 0.04,
-        worst: 0.005,
+        cash: 0.15,
+        worst: -0.007,
+        best: 4.80,
+        expected: 2.41,
     },
     balanced45: {
         label: "Balanced 45",
         equityShare: 0.45,
-        expected: 0.04,
-        best: 0.065,
-        worst: 0.015,
+        cash: 0.15,
+        worst: -0.99,
+        best: 6.66,
+        expected: 3.78,
     },
     dynamic65: {
         label: "Dynamic 65",
         equityShare: 0.65,
-        expected: 0.055,
-        best: 0.085,
-        worst: 0.025,
+        cash: 0.15,
+        worst: -1.89,
+        best: 8.61,
+        expected: 5.20,
     },
     ambitious80: {
         label: "Ambitious 80",
         equityShare: 0.8,
-        expected: 0.07,
-        best: 0.105,
-        worst: 0.03,
+        cash: 0.15,
+        worst: -2.45,
+        best: 9.98,
+        expected: 6.15,
     },
     offensive100: {
         label: "Offensive 100",
         equityShare: 1.0,
-        expected: 0.085,
-        best: 0.125,
-        worst: 0.035,
+        cash: 0.15,
+        worst: -2.83,
+        best: 11.11,
+        expected: 6.89,
     },
 }
 
@@ -194,7 +200,7 @@ function buildData(
     annual: number, // Annual payment
     start: number,
     years: number,
-    rates: { expected: number; best: number; worst: number }
+    rates: { cash: number; expected: number; best: number; worst: number }
 ) {
     const monthly = annual / 12 // Convert annual to monthly for calculation
 
@@ -202,18 +208,17 @@ function buildData(
         const months = i * 12
         const yearLabel = `${age + i}`
 
-        // Cash: just the raw sum with no growth
-        const cash = start + monthly * months
+        // Convert percentage rates to decimal (e.g., 2.41 -> 0.0241)
+        const cashRate = rates.cash / 100
+        const expectedRate = rates.expected / 100
+        const bestRate = rates.best / 100
+        const worstRate = rates.worst / 100
 
-        // Others: total value including growth (futureValueMonthly already includes starting amount + contributions with growth)
-        const expected = futureValueMonthly(
-            start,
-            monthly,
-            rates.expected,
-            months
-        )
-        const best = futureValueMonthly(start, monthly, rates.best, months)
-        const worst = futureValueMonthly(start, monthly, rates.worst, months)
+        // All values use futureValueMonthly with their respective growth rates
+        const cash = futureValueMonthly(start, monthly, cashRate, months)
+        const expected = futureValueMonthly(start, monthly, expectedRate, months)
+        const best = futureValueMonthly(start, monthly, bestRate, months)
+        const worst = futureValueMonthly(start, monthly, worstRate, months)
 
         return {
             year: yearLabel,
