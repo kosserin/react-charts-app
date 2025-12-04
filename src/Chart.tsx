@@ -539,14 +539,14 @@ function Radio({
                     />
                 ) : null}
             </span>
-            <span style={{ fontFamily: FONTS.semibold, color: COLORS.text, fontSize: 16, textAlign: "left" }}>
+            <span style={{ fontFamily: FONTS.semibold, color: COLORS.text, fontSize: 16, textAlign: "left", whiteSpace: "nowrap" }}>
                 {label}
             </span>
-            {sub ? (
-                <span style={{ marginLeft: "auto", color: COLORS.sub, textAlign: "right", fontFamily: FONTS.medium, fontSize: 16 }}>
+            {sub && (
+                <span style={{ marginLeft: "auto", color: COLORS.sub, textAlign: "right", fontFamily: FONTS.medium, fontSize: 16, whiteSpace: "normal" }}>
                     ({sub})
                 </span>
-            ) : null}
+            )}
         </button>
     )
 }
@@ -1024,7 +1024,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                             <h3 style={{ margin: 0, fontFamily: FONTS.semibold, color: "#333333", fontSize: 18 }}>{t.potentialReturn}</h3>
                             <h2 style={{ margin: '8px 0', color: COLORS.bg, fontFamily: FONTS.bold, lineHeight: 1, fontSize: 32 }}>CHF {fmt(potentialReturn)}</h2>
                             {/* TODO: Add some popup for info button click */}
-                            <button onClick={() => alert('asaa')} style={{ backgroundColor: "rgba(0, 0, 0, 0.05)", border: "none", cursor: "pointer", borderRadius: 100, height: 36, paddingInline: 12, fontSize: 14, fontFamily: FONTS.semibold, lineHeight: 1 }}>{t.info}</button>
+                            <button onClick={() => alert('asaa')} style={{ backgroundColor: "rgba(0, 0, 0, 0.05)", border: "none", cursor: "pointer", borderRadius: 100, height: 36, paddingInline: 12, fontSize: 14, fontFamily: FONTS.semibold, lineHeight: 1, color: COLORS.text }}>{t.info}</button>
                         </div>
 
                         <ResponsiveContainer ref={chartRef} width="100%" height="100%" minHeight={isSmallScreen ? 600 : 500}>
@@ -1177,7 +1177,8 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                             style={{
                                 display: "flex",
                                 flexDirection: isSmallScreen ? "column" : "row",
-                                gap: isSmallScreen ? 0 : 32,
+                                gap: isSmallScreen ? 0 : 8,
+                                justifyContent: "space-between",
                             }}
                         >
                             {(Object.keys(EMPLOYMENT) as EmploymentKey[]).map(
