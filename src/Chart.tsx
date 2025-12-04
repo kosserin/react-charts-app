@@ -131,8 +131,6 @@ const TRANSLATIONS = {
     }
 }
 
-type LocaleCode = keyof typeof TRANSLATIONS
-
 // Helper function to get translations
 function getTranslations(localeCode: string | null) {
     // Map locale codes to our supported languages
@@ -739,16 +737,6 @@ export default function PortfolioSimulator() {
         return () => clearTimeout(animationTimer);
     }, [data, annualAmount, start, risk, width]);
 
-    const renderActiveDot = React.useCallback(
-      ({ cx, cy }: any) => {
-        const newY = cy || 0;
-        bestYRef.current = newY;
-
-        return isAnimating ? null : <CircleWithShadow cx={cx} cy={cy} fill={COLORS.best} />;
-      },
-      [isAnimating]
-    );
-
     const handleMouseMove = React.useCallback((state: any) => {
         if (state?.activeTooltipIndex !== undefined && state.activeTooltipIndex !== tooltipIndex) {
             setTooltipIndex(parseInt(state.activeTooltipIndex));
@@ -916,15 +904,48 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
         const x = props.points?.[0]?.x || 0
         const y2 = props.height + props.top + 24
 
+        // Use the payload directly from cursor props for real-time positioning
+        const payload = props.payload || [];
+        if (payload.length === 0) return null;
+
+        const dataPoint = payload[0].payload;
+
+        // Calculate y positions for all dots
+        const chartHeight = props.height;
+        const yAxisDomainMin = yAxisDomain[0];
+        const yAxisDomainMax = yAxisDomain[1];
+        const range = yAxisDomainMax - yAxisDomainMin;
+
+        const getYPosition = (value: number) => {
+            const ratio = (value - yAxisDomainMin) / range;
+            return props.top + chartHeight - (ratio * chartHeight);
+        };
+
+        const bestY = getYPosition(dataPoint.best);
+        const expectedY = getYPosition(dataPoint.expected);
+        const worstY = getYPosition(dataPoint.worst);
+        const cashY = getYPosition(dataPoint.cash);
+
+        // Update bestYRef for cursor positioning
+        bestYRef.current = bestY;
+
         return (
-            <line
-                x1={x}
-                y1={bestYRef.current}
-                x2={x}
-                y2={y2}
-                stroke="#5C5C5C"
-                strokeWidth={1}
-            />
+            <g>
+                {/* Cursor line */}
+                <line
+                    x1={x}
+                    y1={bestY}
+                    x2={x}
+                    y2={y2}
+                    stroke="#5C5C5C"
+                    strokeWidth={1}
+                />
+                {/* Active dots */}
+                <CircleWithShadow cx={x} cy={bestY} fill={COLORS.best} />
+                <CircleWithShadow cx={x} cy={expectedY} fill={COLORS.expected} />
+                <CircleWithShadow cx={x} cy={worstY} fill={COLORS.worst} />
+                <CircleWithShadow cx={x} cy={cashY} fill={COLORS.cash} />
+            </g>
         )
     }
 
@@ -1002,6 +1023,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                         >
                             <h3 style={{ margin: 0, fontFamily: FONTS.semibold, color: "#333333", fontSize: 18 }}>{t.potentialReturn}</h3>
                             <h2 style={{ margin: '8px 0', color: COLORS.bg, fontFamily: FONTS.bold, lineHeight: 1, fontSize: 32 }}>CHF {fmt(potentialReturn)}</h2>
+                            {/* TODO: Add some popup for info button click */}
                             <button onClick={() => alert('asaa')} style={{ backgroundColor: "rgba(0, 0, 0, 0.05)", border: "none", cursor: "pointer", borderRadius: 100, height: 36, paddingInline: 12, fontSize: 14, fontFamily: FONTS.semibold, lineHeight: 1 }}>{t.info}</button>
                         </div>
 
@@ -1026,14 +1048,6 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     mirror={true}
                                     domain={yAxisDomain}
                                 />
-                                <Tooltip
-                                    position={{ y: tooltipPosition?.y || 0 }}
-                                    active={!isAnimating}
-                                    cursor={!isAnimating ? <CustomCursor /> : false}
-                                    isAnimationActive={false}
-                                    allowEscapeViewBox={{ x: true, y: true }}
-                                    content={<CustomTooltip />}
-                                />
                                 <defs>
                                     <linearGradient id="bestGradient" x1="1" y1="0" x2="0" y2="1">
                                         <stop offset="0%" stopColor="#C9F8DE" stopOpacity={1} />
@@ -1057,7 +1071,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     strokeDasharray="6 6"
                                     dot={false}
                                     strokeWidth={2}
-                                    activeDot={renderActiveDot}
+                                    activeDot={false}
                                     fill="url(#bestGradient)"
                                     fillOpacity={1}
                                 />
@@ -1068,7 +1082,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     stroke={COLORS.expected}
                                     dot={false}
                                     strokeWidth={3}
-                                    activeDot={(props) => isAnimating ? null : <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.expected} />}
+                                    activeDot={false}
                                     fill="url(#expectedGradient)"
                                     fillOpacity={1}
                                 />
@@ -1080,7 +1094,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     strokeDasharray="6 6"
                                     dot={false}
                                     strokeWidth={2}
-                                    activeDot={(props) => isAnimating ? null : <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.worst} />}
+                                    activeDot={false}
                                     fill="url(#worstGradient)"
                                     fillOpacity={1}
                                 />
@@ -1089,11 +1103,19 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     animationDuration={200}
                                     dataKey="cash"
                                     stroke={COLORS.cash}
-                                    activeDot={(props) => isAnimating ? null : <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.cash} />}
+                                    activeDot={false}
                                     dot={false}
                                     strokeWidth={3}
                                     // fill="url(#cashGradient)"
                                     fill="transparent"
+                                />
+                                <Tooltip
+                                    position={{ y: tooltipPosition?.y || 0 }}
+                                    active={!isAnimating}
+                                    cursor={!isAnimating ? <CustomCursor /> : false}
+                                    isAnimationActive={false}
+                                    allowEscapeViewBox={{ x: true, y: true }}
+                                    content={<CustomTooltip />}
                                 />
                                 <Legend
                                     verticalAlign="bottom"
