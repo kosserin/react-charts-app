@@ -271,9 +271,10 @@ const EMPLOYMENT: Record<
 }
 
 export function useWindowSize() {
+    // Initialize with 0 to match SSR - will update after mount
     const [size, setSize] = useState({
-        width: typeof window !== "undefined" ? window.innerWidth : 0,
-        height: typeof window !== "undefined" ? window.innerHeight : 0,
+        width: 0,
+        height: 0,
     })
 
     useEffect(() => {
@@ -284,10 +285,10 @@ export function useWindowSize() {
             })
         }
 
-        window.addEventListener("resize", handleResize)
-
-        // Initial call (important for Framer preview)
+        // Set initial size immediately after mount
         handleResize()
+
+        window.addEventListener("resize", handleResize)
 
         return () => window.removeEventListener("resize", handleResize)
     }, [])
@@ -445,6 +446,8 @@ function Slider({
                     appearance: none;
                     width: 24px;
                     height: 24px;
+                    min-width: 24px;
+                    min-height: 24px;
                     border-radius: 50%;
                     background: white;
                     cursor: pointer;
@@ -1029,7 +1032,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                             <button onClick={() => alert('asaa')} style={{ backgroundColor: "rgba(0, 0, 0, 0.05)", border: "none", cursor: "pointer", borderRadius: 100, height: 36, paddingInline: 12, fontSize: 14, fontFamily: FONTS.semibold, lineHeight: 1, color: COLORS.text }}>{t.info}</button>
                         </div>
 
-                        <ResponsiveContainer ref={chartRef} width="100%" height="100%" minHeight={isSmallScreen ? 600 : 500}>
+                        <ResponsiveContainer ref={chartRef} width="100%" height="100%" minHeight={isSmallScreen ? 600 : 500} initialDimension={{ width: 250, height: 250 }}>
                             <AreaChart
                                 data={data}
                                 onMouseMove={handleMouseMove}
