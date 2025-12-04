@@ -9,6 +9,8 @@ import {
     Area,
     AreaChart,
 } from "recharts"
+// @ts-ignore
+// import { useLocaleCode } from "framer"
 
 // ---------- Design-Tokens (einfach anpassbar) ----------
 const COLORS = {
@@ -25,6 +27,114 @@ const COLORS = {
     border: "#E5E7EB",
     shadow: "0 8px 24px rgba(16,24,40,0.08)",
     radius: 24,
+}
+
+// ---------- Translations ----------
+const TRANSLATIONS = {
+    "en": {
+        title: "Calculate your potential 3a assets",
+        potentialReturn: "Potential Return:",
+        info: "Info",
+        yourDetails: "Your Details",
+        yourAge: "Your Age",
+        annualPayments: "Annual payments",
+        startingAmount: "Starting amount",
+        riskLevel: "Risk level",
+        employed: "Employed",
+        selfEmployed: "Self-employed",
+        defensive: "Defensive 25",
+        balanced: "Balanced 45",
+        dynamic: "Dynamic 65",
+        ambitious: "Ambitious 80",
+        offensive: "Offensive 100",
+        bestCase: "Best Case",
+        expected: "Expected",
+        worstCase: "Worst Case",
+        cash: "Cash",
+        inYears: "In {years} years",
+        equityShare: "equity share"
+    },
+    "de-CH": {
+        title: "Berechne dein potenzielles 3a-Vermögen",
+        potentialReturn: "Potenzielle Rendite:",
+        info: "Info",
+        yourDetails: "Deine Details",
+        yourAge: "Dein Alter",
+        annualPayments: "Jährliche Einzahlungen",
+        startingAmount: "Startbetrag",
+        riskLevel: "Risikoklasse",
+        employed: "Angestellt",
+        selfEmployed: "Selbstständig",
+        defensive: "Defensiv 25",
+        balanced: "Ausgewogen 45",
+        dynamic: "Dynamisch 65",
+        ambitious: "Ambitioniert 80",
+        offensive: "Offensiv 100",
+        bestCase: "Bester Fall",
+        expected: "Erwartet",
+        worstCase: "Schlechtester Fall",
+        cash: "Bargeld",
+        inYears: "In {years} Jahren",
+        equityShare: "Aktienanteil"
+    },
+    "fr": {
+        title: "Calculez votre avoir potentiel 3a",
+        potentialReturn: "Rendement potentiel:",
+        info: "Info",
+        yourDetails: "Vos détails",
+        yourAge: "Votre âge",
+        annualPayments: "Versements annuels",
+        startingAmount: "Montant de départ",
+        riskLevel: "Niveau de risque",
+        employed: "Salarié",
+        selfEmployed: "Indépendant",
+        defensive: "Défensif 25",
+        balanced: "Équilibré 45",
+        dynamic: "Dynamique 65",
+        ambitious: "Ambitieux 80",
+        offensive: "Offensif 100",
+        bestCase: "Meilleur cas",
+        expected: "Attendu",
+        worstCase: "Pire cas",
+        cash: "Espèces",
+        inYears: "Dans {years} ans",
+        equityShare: "part d'actions"
+    },
+    "it": {
+        title: "Calcola il tuo potenziale patrimonio 3a",
+        potentialReturn: "Rendimento potenziale:",
+        info: "Info",
+        yourDetails: "I tuoi dettagli",
+        yourAge: "La tua età",
+        annualPayments: "Versamenti annuali",
+        startingAmount: "Importo iniziale",
+        riskLevel: "Livello di rischio",
+        employed: "Dipendente",
+        selfEmployed: "Indipendente",
+        defensive: "Difensivo 25",
+        balanced: "Equilibrato 45",
+        dynamic: "Dinamico 65",
+        ambitious: "Ambizioso 80",
+        offensive: "Offensivo 100",
+        bestCase: "Caso migliore",
+        expected: "Previsto",
+        worstCase: "Caso peggiore",
+        cash: "Contanti",
+        inYears: "In {years} anni",
+        equityShare: "quota azionaria"
+    }
+}
+
+type LocaleCode = keyof typeof TRANSLATIONS
+
+// Helper function to get translations
+function getTranslations(localeCode: string | null) {
+    // Map locale codes to our supported languages
+    const locale = localeCode?.toLowerCase() || "en"
+    if (locale.startsWith("de")) return TRANSLATIONS["de-CH"]
+    if (locale.startsWith("fr")) return TRANSLATIONS["fr"]
+    if (locale.startsWith("it")) return TRANSLATIONS["it"]
+    return TRANSLATIONS["en"]
 }
 
 const STARTING_AMOUNT_VALUES = [
@@ -439,6 +549,11 @@ function Radio({
 
 // ---------- Main component ----------
 export default function PortfolioSimulator() {
+    // Get locale from Framer
+    // const localeCode = useLocaleCode?.() || "en"
+    const localeCode = "en"
+    const t = getTranslations(localeCode)
+
     const RETIREMENT_AGE = 65
     const ANNUAL_LIMITS = {
         employed:
@@ -661,7 +776,7 @@ export default function PortfolioSimulator() {
                         color: "#5C5C5C",
                     }}
                 >
-                    In {label} years
+                    {t.inYears.replace('{years}', label)}
                 </p>
             </div>
         )
@@ -676,10 +791,10 @@ export default function PortfolioSimulator() {
         }
 
         const labelMap: Record<string, string> = {
-            best: "Best Case",
-            expected: "Erwartet",
-            worst: "Worst Case",
-            cash: "Cash",
+            best: t.bestCase,
+            expected: t.expected,
+            worst: t.worstCase,
+            cash: t.cash,
         }
 
         const safeIndex = Math.min(tooltipIndex, data.length - 1)
@@ -864,7 +979,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                     }}
                 >
                     <div style={{ padding: isSmallScreen ? 16 : 32 }}>
-                        <SectionTitle>Calculate your potential 3a assets</SectionTitle>
+                        <SectionTitle>{t.title}</SectionTitle>
                     </div>
 
                     <div style={{ position: "relative", width: "100%", flex: 1, touchAction: "none", overscrollBehavior: "contain" }}>
@@ -879,9 +994,9 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                 textAlign: "left",
                             }}
                         >
-                            <h3 style={{ margin: 0 }}>Potential Return:</h3>
+                            <h3 style={{ margin: 0 }}>{t.potentialReturn}</h3>
                             <h2 style={{ margin: '8px 0 0 0', color: COLORS.bg, fontFamily: '700', lineHeight: 1, fontSize: 32 }}>CHF {fmt(potentialReturn)}</h2>
-                            <button onClick={() => alert('asaa')} style={{ backgroundColor: "rgba(0, 0, 0, 0.05)", border: "none", cursor: "pointer", borderRadius: 100, height: 36, paddingInline: 12, fontSize: 14, fontWeight: 600, lineHeight: 1 }}>Info</button>
+                            <button onClick={() => alert('asaa')} style={{ backgroundColor: "rgba(0, 0, 0, 0.05)", border: "none", cursor: "pointer", borderRadius: 100, height: 36, paddingInline: 12, fontSize: 14, fontWeight: 600, lineHeight: 1 }}>{t.info}</button>
                         </div>
 
                         <ResponsiveContainer ref={chartRef} width="100%" height="100%" minHeight={isSmallScreen ? 600 : 500}>
@@ -1006,7 +1121,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                         minWidth: isMobile ? 'unset' : 300,
                     }}
                 >
-                    <SectionTitle>Deine Details</SectionTitle>
+                    <SectionTitle>{t.yourDetails}</SectionTitle>
 
                     {/* Ages and Employment */}
                     <div
@@ -1018,7 +1133,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                     >
                         {/* Ages */}
                         <div>
-                            <LabelRow left="Dein Alter" right={displayAge} />
+                            <LabelRow left={t.yourAge} right={displayAge} />
                             <Slider
                                 value={age}
                                 onChange={setAge}
@@ -1045,7 +1160,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                         onChange={() =>
                                             handleEmploymentChange(key)
                                         }
-                                        label={EMPLOYMENT[key].label}
+                                        label={key === "employed" ? t.employed : t.selfEmployed}
                                     />
                                 )
                             )}
@@ -1055,7 +1170,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                     {/* Annual payments */}
                     <div>
                         <LabelRow
-                            left="Annual payments"
+                            left={t.annualPayments}
                             right={fmt(displayAnnualAmount)}
                         />
                         <Slider
@@ -1071,7 +1186,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                     {/* Starting amount */}
                     <div>
                         <LabelRow
-                            left="Starting amount"
+                            left={t.startingAmount}
                             right={fmt(displayStart)}
                         />
                         <Slider
@@ -1086,19 +1201,28 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
 
                     {/* Risk level */}
                     <div style={{ marginTop: 4 }}>
-                        <LabelRow left="Risk level" />
+                        <LabelRow left={t.riskLevel} />
                         <div style={{ display: "grid" }}>
                             {(Object.keys(RISK_TABLE) as RiskKey[]).map(
-                                (key) => (
-                                    <Radio
-                                        key={key}
-                                        checked={risk === key}
-                                        onChange={() => setRisk(key)}
-                                        label={RISK_TABLE[key].label}
-                                        sub={`${Math.round(RISK_TABLE[key].equityShare * 100)}% Aktienanteil`}
-                                    />
-                                )
-                            )}
+                                (key) => {
+                                    const riskLabels = {
+                                        defensive25: t.defensive,
+                                        balanced45: t.balanced,
+                                        dynamic65: t.dynamic,
+                                        ambitious80: t.ambitious,
+                                        offensive100: t.offensive
+                                    }
+                                    return (
+                                        <Radio
+                                            key={key}
+                                            checked={risk === key}
+                                            onChange={() => setRisk(key)}
+                                            label={riskLabels[key]}
+                                            sub={`${Math.round(RISK_TABLE[key].equityShare * 100)}% ${t.equityShare}`}
+                                        />
+                                    )
+                                })
+                            }
                         </div>
                     </div>
                 </div>
