@@ -29,6 +29,13 @@ const COLORS = {
     radius: 24,
 }
 
+// ---------- Font Families ----------
+const FONTS = {
+    bold: "Galano Grotesque Bold, sans-serif",      // fontWeight: 700
+    semibold: "Galano Grotesque SemiBold, sans-serif", // fontWeight: 600
+    medium: "Galano Grotesque Medium, sans-serif",  // fontWeight: 500
+}
+
 // ---------- Translations ----------
 const TRANSLATIONS = {
     "en": {
@@ -346,9 +353,9 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
         <div
             style={{
                 textAlign: "left",
-                fontSize: 18,
+                fontSize: 32,
                 color: COLORS.text,
-                fontWeight: 600,
+                fontFamily: FONTS.bold,
             }}
         >
             {children}
@@ -368,14 +375,14 @@ function LabelRow({
             style={{
                 display: "flex",
                 justifyContent: "space-between",
-                fontSize: 16,
-                fontWeight: 600,
+                fontSize: 18,
+                fontFamily: FONTS.semibold,
                 color: COLORS.text,
                 marginBottom: 12,
             }}
         >
             <span>{left}</span>
-            <span style={{ fontWeight: 600, color: COLORS.text }}>{right}</span>
+            <span style={{ fontFamily: FONTS.semibold, color: COLORS.text }}>{right}</span>
         </div>
     )
 }
@@ -535,11 +542,11 @@ function Radio({
                     />
                 ) : null}
             </span>
-            <span style={{ fontWeight: 600, color: COLORS.text, fontSize: 16, textAlign: "left" }}>
+            <span style={{ fontFamily: FONTS.semibold, color: COLORS.text, fontSize: 16, textAlign: "left" }}>
                 {label}
             </span>
             {sub ? (
-                <span style={{ marginLeft: "auto", color: COLORS.sub, textAlign: "right" }}>
+                <span style={{ marginLeft: "auto", color: COLORS.sub, textAlign: "right", fontFamily: FONTS.medium, fontSize: 16 }}>
                     ({sub})
                 </span>
             ) : null}
@@ -770,7 +777,7 @@ export default function PortfolioSimulator() {
                 <p
                     style={{
                         margin: 0,
-                        fontWeight: 600,
+                        fontFamily: FONTS.semibold,
                         fontSize: 14,
                         lineHeight: 1,
                         color: "#5C5C5C",
@@ -854,7 +861,7 @@ export default function PortfolioSimulator() {
                                     <span
                                         style={{
                                             fontSize: 16,
-                                            fontWeight: 600,
+                                            fontFamily: FONTS.semibold,
                                             color: COLORS.text,
                                         }}
                                     >
@@ -863,8 +870,8 @@ export default function PortfolioSimulator() {
                                     <span
                                         style={{
                                             fontSize: 16,
-                                            fontWeight: 500,
-                                            color: COLORS.text,
+                                            fontFamily: FONTS.medium,
+                                            color: "#6E6E6E",
                                         }}
                                     >
                                         {fmt(currentValue || 0)}
@@ -994,9 +1001,9 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                 textAlign: "left",
                             }}
                         >
-                            <h3 style={{ margin: 0 }}>{t.potentialReturn}</h3>
-                            <h2 style={{ margin: '8px 0 0 0', color: COLORS.bg, fontFamily: '700', lineHeight: 1, fontSize: 32 }}>CHF {fmt(potentialReturn)}</h2>
-                            <button onClick={() => alert('asaa')} style={{ backgroundColor: "rgba(0, 0, 0, 0.05)", border: "none", cursor: "pointer", borderRadius: 100, height: 36, paddingInline: 12, fontSize: 14, fontWeight: 600, lineHeight: 1 }}>{t.info}</button>
+                            <h3 style={{ margin: 0, fontFamily: FONTS.semibold, color: "#333333", fontSize: 18 }}>{t.potentialReturn}</h3>
+                            <h2 style={{ margin: '8px 0 0 0', color: COLORS.bg, fontFamily: FONTS.bold, lineHeight: 1, fontSize: 32 }}>CHF {fmt(potentialReturn)}</h2>
+                            <button onClick={() => alert('asaa')} style={{ backgroundColor: "rgba(0, 0, 0, 0.05)", border: "none", cursor: "pointer", borderRadius: 100, height: 36, paddingInline: 12, fontSize: 14, fontFamily: FONTS.semibold, lineHeight: 1 }}>{t.info}</button>
                         </div>
 
                         <ResponsiveContainer ref={chartRef} width="100%" height="100%" minHeight={isSmallScreen ? 600 : 500}>
