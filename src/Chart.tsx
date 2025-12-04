@@ -24,7 +24,7 @@ const COLORS = {
     worst: "#FFA666", // orange gestrichelt
     border: "#E5E7EB",
     shadow: "0 8px 24px rgba(16,24,40,0.08)",
-    radius: 32,
+    radius: 24,
 }
 
 const STARTING_AMOUNT_VALUES = [
@@ -92,7 +92,7 @@ const RISK_TABLE: Record<
         label: "Defensiv 25",
         equityShare: 0.25,
         cash: 0.15,
-        worst: -0.007,
+        worst: 0.007,
         best: 4.80,
         expected: 2.41,
     },
@@ -100,7 +100,7 @@ const RISK_TABLE: Record<
         label: "Balanced 45",
         equityShare: 0.45,
         cash: 0.15,
-        worst: -0.99,
+        worst: 0.99,
         best: 6.66,
         expected: 3.78,
     },
@@ -108,7 +108,7 @@ const RISK_TABLE: Record<
         label: "Dynamic 65",
         equityShare: 0.65,
         cash: 0.15,
-        worst: -1.89,
+        worst: 1.89,
         best: 8.61,
         expected: 5.20,
     },
@@ -116,7 +116,7 @@ const RISK_TABLE: Record<
         label: "Ambitious 80",
         equityShare: 0.8,
         cash: 0.15,
-        worst: -2.45,
+        worst: 2.45,
         best: 9.98,
         expected: 6.15,
     },
@@ -124,7 +124,7 @@ const RISK_TABLE: Record<
         label: "Offensive 100",
         equityShare: 1.0,
         cash: 0.15,
-        worst: -2.83,
+        worst: 2.83,
         best: 11.11,
         expected: 6.89,
     },
@@ -318,16 +318,10 @@ function Slider({
 
         if (timeoutRef.current) clearTimeout(timeoutRef.current)
 
-        timeoutRef.current = setTimeout(() => {
-            onChange(newValue)
-        }, debounceMs)
+        timeoutRef.current = setTimeout(() => onChange(newValue), debounceMs)
     }
 
-    React.useEffect(() => {
-        return () => {
-            if (timeoutRef.current) clearTimeout(timeoutRef.current)
-        }
-    }, [])
+    React.useEffect(() => () => {if (timeoutRef.current) clearTimeout(timeoutRef.current)}, [])
 
     return (
         <>
@@ -443,7 +437,7 @@ function Radio({
     )
 }
 
-// ---------- Hauptkomponente ----------
+// ---------- Main component ----------
 export default function PortfolioSimulator() {
     const RETIREMENT_AGE = 65
     const ANNUAL_LIMITS = {
@@ -481,7 +475,6 @@ export default function PortfolioSimulator() {
             )
         }
 
-        // ✅ Update both annualAmount AND displayAnnualAmount
         setAnnualAmount(closestValue)
         setDisplayAnnualAmount(closestValue)
     }
@@ -516,18 +509,6 @@ export default function PortfolioSimulator() {
         [age, annualAmount, start, years, riskMeta]
     )
 
-    // Calculate return data (showing only gains, not total value)
-    // const returnData = React.useMemo(() => {
-    //     return data.map((point) => ({
-    //         year: point.year,
-    //         cash: 0, // Cash has no return
-    //         expected: point.expected - point.cash,
-    //         best: point.best - point.cash,
-    //         worst: point.worst - point.cash,
-    //     }))
-    // }, [data])
-
-    // Calculate Y-axis domain based on return data
     const yAxisDomain = React.useMemo(() => {
         if (data.length === 0) return [0, 100000]
 
@@ -543,8 +524,7 @@ export default function PortfolioSimulator() {
             })
         })
 
-        // Add a small padding (5%) for visual breathing room
-        // const padding = (max - min) * 0.00
+        // No padding
         const padding = (max - min) * 0.00
         const domain = [min - padding, max + padding]
 
@@ -560,6 +540,7 @@ export default function PortfolioSimulator() {
 
     const { width } = useWindowSize()
     const isMobile = width < 1000
+    const isSmallScreen = width < 350
 
     // Calculate potential return (Expected - Cash) at current tooltip index
     const potentialReturn = React.useMemo(() => {
@@ -635,23 +616,24 @@ export default function PortfolioSimulator() {
         }, 200);
 
         return () => clearTimeout(animationTimer);
-    }, [data, annualAmount, start, risk, isMobile]);
-
-    console.log('isMobile', isMobile);
-
-    const currentYearIndex = Math.min(20, years)
-    const currentYear = age + currentYearIndex
+    }, [data, annualAmount, start, risk, width]);
 
     const renderActiveDot = React.useCallback(
       ({ cx, cy }: ActiveDotProps) => {
         const newY = cy || 0;
-        // Update ref only (no state update during render)
         bestYRef.current = newY;
 
         return isAnimating ? null : <CircleWithShadow cx={cx} cy={cy} fill={COLORS.best} />;
       },
       [isAnimating]
     );
+
+    const handleMouseMove = (state: any) => {
+        if (state?.activeTooltipIndex !== undefined) {
+            setTooltipIndex(parseInt(state.activeTooltipIndex));
+            console.log('onMouseMove triggered, activeIndex:', state.activeTooltipIndex);
+        }
+    }
 
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (!active || !payload || payload.length === 0) {
@@ -664,7 +646,7 @@ export default function PortfolioSimulator() {
                     backgroundColor: "#FFFFFF",
                     borderRadius: "6px",
                     padding: "4px 8px",
-                    transform: "translate(calc(-50% - 11px), calc(100% + 11px + 8px))",
+                    transform: "translate(calc(-50% - 11px), calc(100% + 11px + 24px))",
                     pointerEvents: "none",
                     color: "white",
                     boxShadow: "0px 0px 12px rgba(0, 0, 0, 0.25)",
@@ -708,9 +690,10 @@ export default function PortfolioSimulator() {
             <div
                 style={{
                     marginTop: "0px",
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: 32,
+                    display: isMobile ? "grid" : "flex",
+                    flexWrap: isMobile ? undefined : "wrap",
+                    gap: isSmallScreen ? 16 : 32,
+                    gridTemplateColumns: isSmallScreen ? "repeat(1, 1fr)" : isMobile ? "repeat(2, 1fr)" : undefined,
                 }}
             >
                 {payload.map(
@@ -720,9 +703,7 @@ export default function PortfolioSimulator() {
                     ) => {
                         const key = entry.dataKey as keyof DataPoint
                         // For cash, show actual accumulated value from data, not data
-                        const currentValue = key === "cash" 
-                            ? (data[safeIndex]?.cash as number)
-                            : (data[safeIndex]?.[key] as number)
+                        const currentValue = (data[safeIndex]?.[key] as number)
 
                         return (
                             <div
@@ -732,6 +713,7 @@ export default function PortfolioSimulator() {
                                     alignItems: "center",
                                     gap: "8px",
                                     paddingBlock: 10,
+                                    minWidth: 120
                                 }}
                             >
                                 {/* Color Box */}
@@ -811,20 +793,14 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
 
     const CustomCursor = (props: any) => {
         const x = props.points?.[0]?.x || 0
-        const y2 = props.height + props.top + 8
-        // const x1 = Math.floor(Math.random() * 500) + 1
-        // const x2 = Math.floor(Math.random() * 500) + 1
-        
+        const y2 = props.height + props.top + 24
 
         return (
             <line
                 x1={x}
                 y1={bestYRef.current}
-
-                // x2={x}
                 x2={x}
-                y2={props.points?.[1]?.y + 8 || 0}
-                // y2={props.points?.[1]?.y || 0}
+                y2={y2}
                 stroke="#5C5C5C"
                 strokeWidth={1}
             />
@@ -883,22 +859,21 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                   borderRadius: COLORS.radius,
                               }),
                         display: "flex",
-                        minHeight: 300,
                         pointerEvents: isAnimating ? "none" : "auto",
                         flexDirection: "column",
                     }}
                 >
-                    <div style={{ padding: 32 }}>
+                    <div style={{ padding: isSmallScreen ? 16 : 32 }}>
                         <SectionTitle>Calculate your potential 3a assets</SectionTitle>
                     </div>
 
-                    <div style={{ position: "relative", width: "100%", flex: 1 }}>
+                    <div style={{ position: "relative", width: "100%", flex: 1, touchAction: "none", overscrollBehavior: "contain" }}>
                         {/* Absolutely positioned title inside the chart */}
                         <div
                             style={{
                                 position: "absolute",
                                 top: 0,
-                                left: 32,
+                                left: isSmallScreen ? 16 : 32,
                                 zIndex: 10,
                                 pointerEvents: "auto",
                                 textAlign: "left",
@@ -909,19 +884,13 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                             <button onClick={() => alert('asaa')} style={{ backgroundColor: "rgba(0, 0, 0, 0.05)", border: "none", cursor: "pointer", borderRadius: 100, height: 36, paddingInline: 12, fontSize: 14, fontWeight: 600, lineHeight: 1 }}>Info</button>
                         </div>
 
-                        <ResponsiveContainer ref={chartRef} width="100%" height="100%">
+                        <ResponsiveContainer ref={chartRef} width="100%" height="100%" minHeight={isSmallScreen ? 600 : 500}>
                             <AreaChart
-                            onMouseMove={(state: any) => {
-                                if (state?.activeTooltipIndex !== undefined) {
-                                    setTooltipIndex(parseInt(state.activeTooltipIndex));
-                                    console.log('onMouseMove triggered, activeIndex:', state.activeTooltipIndex);
-                                }
-                              }}
                                 data={data}
-                                // onMouseMove={handleMouseMove}
+                                onMouseMove={handleMouseMove}
                                 margin={{
-                                    left: 32,
-                                    right: 32,
+                                    left: isSmallScreen ? 16 : 32,
+                                    right: isSmallScreen ? 16 : 32,
                                     top: 32,
                                     bottom: 32,
                                 }}
@@ -936,10 +905,6 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     mirror={true}
                                     domain={yAxisDomain}
                                 />
-                                {/* <ReferenceLine
-                                    x={`${currentYear}`}
-                                    stroke="#11182722"
-                                /> */}
                                 <Tooltip
                                     position={{ y: tooltipPosition?.y || 0 }}
                                     active={!isAnimating}
@@ -948,7 +913,6 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     allowEscapeViewBox={{ x: true, y: true }}
                                     content={<CustomTooltip />}
                                 />
-                                {/* Area fills - render behind lines */}
                                 <defs>
                                     <linearGradient id="bestGradient" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="0%" stopColor={COLORS.best} stopOpacity={0} />
@@ -1012,7 +976,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                 <Legend
                                     verticalAlign="bottom"
                                     align="left"
-                                    wrapperStyle={{ paddingTop: 32 }}
+                                    wrapperStyle={{ paddingTop: isMobile ? 16 : 32 }}
                                     content={<CustomLegend />}
                                 />
                             </AreaChart>
@@ -1034,7 +998,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                             : {
                                   borderRadius: COLORS.radius,
                               }),
-                        padding: 32,
+                        padding: isSmallScreen ? '32px 16px' : 32,
                         display: "flex",
                         flexDirection: "column",
                         gap: 32,
@@ -1051,7 +1015,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                             gap: 16,
                         }}
                     >
-                        {/* Alter */}
+                        {/* Ages */}
                         <div>
                             <LabelRow left="Dein Alter" right={displayAge} />
                             <Slider
@@ -1064,11 +1028,12 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                             />
                         </div>
 
-                        {/* Beschäftigung */}
+                        {/* Employment */}
                         <div
                             style={{
                                 display: "flex",
-                                gap: 32,
+                                flexDirection: isSmallScreen ? "column" : "row",
+                                gap: isSmallScreen ? 0 : 32,
                             }}
                         >
                             {(Object.keys(EMPLOYMENT) as EmploymentKey[]).map(
@@ -1086,7 +1051,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                         </div>
                     </div>
 
-                    {/* Monatliche Einzahlung */}
+                    {/* Annual payments */}
                     <div>
                         <LabelRow
                             left="Annual payments"
@@ -1102,7 +1067,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                         />
                     </div>
 
-                    {/* Startbetrag */}
+                    {/* Starting amount */}
                     <div>
                         <LabelRow
                             left="Starting amount"
@@ -1118,7 +1083,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                         />
                     </div>
 
-                    {/* Risiko */}
+                    {/* Risk level */}
                     <div style={{ marginTop: 4 }}>
                         <LabelRow left="Risk level" />
                         <div style={{ display: "grid" }}>
