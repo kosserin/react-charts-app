@@ -819,7 +819,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                 x2={x}
                 y2={props.points?.[1]?.y + 8 || 0}
                 // y2={props.points?.[1]?.y || 0}
-                stroke="#000000"
+                stroke="#5C5C5C"
                 strokeWidth={1}
             />
         )
