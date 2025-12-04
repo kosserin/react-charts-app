@@ -5,7 +5,6 @@ import {
     Tooltip,
     ResponsiveContainer,
     Legend,
-    ActiveDotProps,
     Area,
     AreaChart,
 } from "recharts"
@@ -741,7 +740,7 @@ export default function PortfolioSimulator() {
     }, [data, annualAmount, start, risk, width]);
 
     const renderActiveDot = React.useCallback(
-      ({ cx, cy }: ActiveDotProps) => {
+      ({ cx, cy }: any) => {
         const newY = cy || 0;
         bestYRef.current = newY;
 
@@ -1002,7 +1001,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                             }}
                         >
                             <h3 style={{ margin: 0, fontFamily: FONTS.semibold, color: "#333333", fontSize: 18 }}>{t.potentialReturn}</h3>
-                            <h2 style={{ margin: '8px 0 0 0', color: COLORS.bg, fontFamily: FONTS.bold, lineHeight: 1, fontSize: 32 }}>CHF {fmt(potentialReturn)}</h2>
+                            <h2 style={{ margin: '8px 0', color: COLORS.bg, fontFamily: FONTS.bold, lineHeight: 1, fontSize: 32 }}>CHF {fmt(potentialReturn)}</h2>
                             <button onClick={() => alert('asaa')} style={{ backgroundColor: "rgba(0, 0, 0, 0.05)", border: "none", cursor: "pointer", borderRadius: 100, height: 36, paddingInline: 12, fontSize: 14, fontFamily: FONTS.semibold, lineHeight: 1 }}>{t.info}</button>
                         </div>
 
