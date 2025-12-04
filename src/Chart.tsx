@@ -914,16 +914,16 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     content={<CustomTooltip />}
                                 />
                                 <defs>
-                                    <linearGradient id="bestGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor={COLORS.best} stopOpacity={0} />
+                                    <linearGradient id="bestGradient" x1="1" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="#C9F8DE" stopOpacity={1} />
                                         <stop offset="100%" stopColor="#FFFFFF" stopOpacity={1} />
                                     </linearGradient>
-                                    <linearGradient id="expectedGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor={COLORS.expected} stopOpacity={0} />
+                                    <linearGradient id="expectedGradient" x1="1" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="#C2EFF2" stopOpacity={1} />
                                         <stop offset="100%" stopColor="#FFFFFF" stopOpacity={1} />
                                     </linearGradient>
-                                    <linearGradient id="worstGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor={COLORS.worst} stopOpacity={0} />
+                                    <linearGradient id="worstGradient" x1="1" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="#FFEADB" stopOpacity={1} />
                                         <stop offset="100%" stopColor="#FFFFFF" stopOpacity={1} />
                                     </linearGradient>
                                 </defs>
@@ -954,16 +954,6 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                 <Area
                                     type="monotone"
                                     animationDuration={200}
-                                    dataKey="cash"
-                                    stroke={COLORS.cash}
-                                    activeDot={(props) => isAnimating ? null : <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.cash} />}
-                                    dot={false}
-                                    strokeWidth={3}
-                                    fill="transparent"
-                                />
-                                <Area
-                                    type="monotone"
-                                    animationDuration={200}
                                     dataKey="worst"
                                     stroke={COLORS.worst}
                                     strokeDasharray="6 6"
@@ -972,6 +962,17 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                     activeDot={(props) => isAnimating ? null : <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.worst} />}
                                     fill="url(#worstGradient)"
                                     fillOpacity={1}
+                                />
+                                <Area
+                                    type="monotone"
+                                    animationDuration={200}
+                                    dataKey="cash"
+                                    stroke={COLORS.cash}
+                                    activeDot={(props) => isAnimating ? null : <CircleWithShadow cx={props.cx} cy={props.cy} fill={COLORS.cash} />}
+                                    dot={false}
+                                    strokeWidth={3}
+                                    // fill="url(#cashGradient)"
+                                    fill="transparent"
                                 />
                                 <Legend
                                     verticalAlign="bottom"
