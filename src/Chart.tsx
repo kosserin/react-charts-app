@@ -566,6 +566,7 @@ export default function PortfolioSimulator() {
     React.useEffect(() => {
         // 1. Start Animation
         setIsAnimating(true);
+        setTooltipIndex(data.length - 1);
 
         // 2. Wait for animation to finish (e.g., 1000ms)
         const animationTimer = setTimeout(() => {
