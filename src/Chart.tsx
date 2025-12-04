@@ -1009,7 +1009,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                         <SectionTitle>{t.title}</SectionTitle>
                     </div>
 
-                    <div style={{ position: "relative", width: "100%", flex: 1, touchAction: "none", overscrollBehavior: "contain" }}>
+                    <div style={{ position: "relative", width: "100%", flex: 1, touchAction: "pan-y" }}>
                         {/* Absolutely positioned title inside the chart */}
                         <div
                             style={{
