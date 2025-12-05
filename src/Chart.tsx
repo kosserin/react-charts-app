@@ -776,7 +776,7 @@ export default function PortfolioSimulator() {
 
       const dimensions = getChartDimensions(container as HTMLElement);
       if (!dimensions) {
-        console.log("SVG not found");
+        console.error("SVG not found");
         return;
       }
 
@@ -798,7 +798,7 @@ export default function PortfolioSimulator() {
       const tooltipY = calculateTooltipYPosition(rect.height, legendHeight);
       setTooltipPosition(tooltipY);
 
-      console.log("Calculated position:", {
+      console.debug("Calculated position:", {
         xPosition,
         yPosition,
         pointSpacing,
@@ -830,7 +830,7 @@ export default function PortfolioSimulator() {
         state.activeTooltipIndex !== tooltipIndex
       ) {
         setTooltipIndex(parseInt(state.activeTooltipIndex));
-        console.log(
+        console.debug(
           "onMouseMove triggered, activeIndex:",
           state.activeTooltipIndex
         );
