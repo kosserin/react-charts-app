@@ -710,12 +710,13 @@ export default function PortfolioSimulator() {
                         // Chart width minus left and right margins (32px each)
                         const leftMargin = isSmallScreen ? 16 : 32;
                         const rightMargin = isSmallScreen ? 16 : 32;
+                        const topMargin = 32;
                         const chartWidth = rect.width - (leftMargin + rightMargin);
                         // Distribute points evenly across the chart width
                         const pointSpacing = chartWidth / Math.max(1, data.length - 1);
                         // Position of last point: left edge + left margin + (spacing * last index)
                         const xPosition = rect.left + leftMargin + (pointSpacing * (data.length - 1));
-                        const yPosition = rect.top + (rect.height / 2);
+                        const yPosition = rect.top + topMargin;
 
                         // Set tooltip Y position to bottom of chart area (before legend)
                         // Total height - bottom margin - legend height
@@ -1036,7 +1037,8 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                             <button onClick={() => alert('asaa')} style={{ backgroundColor: "rgba(0, 0, 0, 0.05)", border: "none", cursor: "pointer", borderRadius: 100, height: 36, paddingInline: 12, fontSize: 14, fontFamily: FONTS.semibold, lineHeight: 1, color: COLORS.text }}>{t.info}</button>
                         </div>
 
-                        <ResponsiveContainer ref={chartRef} width="100%" height="100%" minHeight={isSmallScreen ? 600 : 500} initialDimension={{ width: 250, height: 250 }}>
+                        <div style={{aspectRatio: isMobile ? 0.8 : undefined, height: isMobile ? undefined : "100%"}}>
+                        <ResponsiveContainer ref={chartRef} width="100%" height="100%" initialDimension={{ width: 250, height: 250 }}>
                             <AreaChart
                                 data={data}
                                 onMouseMove={handleMouseMove}
@@ -1134,6 +1136,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
+                        </div>
                     </div>
                 </div>
 
