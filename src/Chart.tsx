@@ -742,7 +742,7 @@ export default function PortfolioSimulator() {
         }, 200);
 
         return () => clearTimeout(animationTimer);
-    }, [data, annualAmount, start, risk, width]);
+    }, [data, annualAmount, start, risk, width, isSmallScreen]);
 
     const handleMouseMove = React.useCallback((state: any) => {
         if (state?.activeTooltipIndex !== undefined && state.activeTooltipIndex !== tooltipIndex) {
