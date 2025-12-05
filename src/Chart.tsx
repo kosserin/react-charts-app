@@ -708,11 +708,13 @@ export default function PortfolioSimulator() {
 
                         // Calculate the X position of the last data point
                         // Chart width minus left and right margins (32px each)
-                        const chartWidth = rect.width - 64;
+                        const leftMargin = isSmallScreen ? 16 : 32;
+                        const rightMargin = isSmallScreen ? 16 : 32;
+                        const chartWidth = rect.width - (leftMargin + rightMargin);
                         // Distribute points evenly across the chart width
                         const pointSpacing = chartWidth / Math.max(1, data.length - 1);
                         // Position of last point: left edge + left margin + (spacing * last index)
-                        const xPosition = rect.left + 32 + (pointSpacing * (data.length - 1));
+                        const xPosition = rect.left + leftMargin + (pointSpacing * (data.length - 1));
                         const yPosition = rect.top + (rect.height / 2);
 
                         // Set tooltip Y position to bottom of chart area (before legend)
@@ -806,8 +808,8 @@ export default function PortfolioSimulator() {
                     marginTop: "0px",
                     display: isMobile ? "grid" : "flex",
                     flexWrap: isMobile ? undefined : "wrap",
-                    gap: isSmallScreen ? 16 : 32,
-                    gridTemplateColumns: isSmallScreen ? "repeat(1, 1fr)" : isMobile ? "repeat(2, 1fr)" : undefined,
+                    gap: isSmallScreen ? 8 : 32,
+                    gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : undefined,
                 }}
             >
                 {payload.map(
@@ -833,8 +835,8 @@ export default function PortfolioSimulator() {
                                 {/* Color Box */}
                                 <div
                                     style={{
-                                        height: 32,
-                                        width: 32,
+                                        height: isSmallScreen ? 24 : 32,
+                                        width: isSmallScreen ? 24 : 32,
                                         borderRadius: "4px",
                                         backgroundColor:
                                             colorMap[key] || entry.color,
