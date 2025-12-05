@@ -807,10 +807,11 @@ export default function PortfolioSimulator() {
             <div
                 style={{
                     marginTop: "0px",
-                    display: isMobile ? "grid" : "flex",
-                    flexWrap: isMobile ? undefined : "wrap",
-                    gap: isSmallScreen ? 8 : 32,
-                    gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : undefined,
+                    display: width < 1200 ? "grid" : "flex",
+                    flexWrap: width < 1200 ? undefined : "wrap",
+                    justifyContent: "space-between",
+                    gap: isSmallScreen ? 0 : 8,
+                    gridTemplateColumns: width < 1200 ? "repeat(2, 1fr)" : undefined,
                 }}
             >
                 {payload.map(
@@ -1036,8 +1037,7 @@ function CircleWithShadow({ cx, cy, fill }: { cx: number | undefined, cy: number
                             {/* TODO: Add some popup for info button click */}
                             <button onClick={() => alert('asaa')} style={{ backgroundColor: "rgba(0, 0, 0, 0.05)", border: "none", cursor: "pointer", borderRadius: 100, height: 36, paddingInline: 12, fontSize: 14, fontFamily: FONTS.semibold, lineHeight: 1, color: COLORS.text }}>{t.info}</button>
                         </div>
-
-                        <div style={{aspectRatio: isMobile ? 0.8 : undefined, height: isMobile ? undefined : "100%"}}>
+                        <div style={{aspectRatio: isSmallScreen ? 0.65 : isMobile ? 0.9 : undefined, height: isMobile ? undefined : "100%"}}>
                         <ResponsiveContainer ref={chartRef} width="100%" height="100%" initialDimension={{ width: 250, height: 250 }}>
                             <AreaChart
                                 data={data}
