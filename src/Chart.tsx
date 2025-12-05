@@ -268,6 +268,8 @@ const EMPLOYMENT: Record<
   },
 };
 
+const ANIMATION_DURATION = 200;
+
 export function useWindowSize() {
   // Initialize with 0 to match SSR - will update after mount
   const [size, setSize] = useState({
@@ -675,7 +677,7 @@ export default function PortfolioSimulator() {
 
   const [tooltipIndex, setTooltipIndex] = React.useState<number>(0);
   const [tooltipPosition, setTooltipPosition] = React.useState<
-    { x: number; y: number } | undefined
+    number | undefined
   >(undefined);
   const [isAnimating, setIsAnimating] = React.useState(false);
 
@@ -693,91 +695,133 @@ export default function PortfolioSimulator() {
     return data[safeIndex].expected - data[safeIndex].cash;
   }, [tooltipIndex, data]);
 
+  // Helper function to get chart dimensions and layout information
+  const getChartDimensions = React.useCallback(
+    (container: HTMLElement) => {
+      const svg = container.querySelector("svg");
+      if (!svg) return null;
+
+      const rect = svg.getBoundingClientRect();
+      const legendElement = container.querySelector(".recharts-legend-wrapper");
+      const legendHeight = legendElement
+        ? legendElement.getBoundingClientRect().height + 64
+        : 0;
+
+      const leftMargin = isSmallScreen ? 16 : 32;
+      const rightMargin = isSmallScreen ? 16 : 32;
+      const topMargin = 32;
+      const chartWidth = rect.width - (leftMargin + rightMargin);
+      const pointSpacing = chartWidth / Math.max(1, data.length - 1);
+
+      return {
+        svg,
+        rect,
+        legendHeight,
+        leftMargin,
+        rightMargin,
+        topMargin,
+        chartWidth,
+        pointSpacing,
+      };
+    },
+    [data.length, isSmallScreen]
+  );
+
+  // Helper function to calculate tooltip Y position
+  const calculateTooltipYPosition = React.useCallback(
+    (rectHeight: number, legendHeight: number) => {
+      return rectHeight - 32 - legendHeight;
+    },
+    []
+  );
+
+  // Helper function to trigger tooltip at the last data point
+  const triggerTooltipAtPosition = React.useCallback(
+    (svg: SVGSVGElement, xPosition: number, yPosition: number) => {
+      // Clear any existing tooltip state
+      svg.dispatchEvent(
+        new MouseEvent("mouseleave", {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+        })
+      );
+
+      // Trigger tooltip at the calculated position
+      svg.dispatchEvent(
+        new MouseEvent("mousemove", {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+          clientX: xPosition,
+          clientY: yPosition,
+        })
+      );
+    },
+    []
+  );
+
   // Reset tooltip index when data changes to show the last point
   React.useEffect(() => {
-    // 1. Start Animation
+    // Start animation and set tooltip to last data point
     setIsAnimating(true);
     setTooltipIndex(data.length - 1);
 
-    // 2. Wait for animation to finish (e.g., 1000ms)
+    // Wait for animation to finish before positioning tooltip
     const animationTimer = setTimeout(() => {
       setIsAnimating(false);
 
-      // 3. Wait for React to re-enable the Tooltip (active={true})
       const container = chartRef.current;
+      if (!container) return;
 
-      if (container) {
-        const element = container as HTMLElement;
-
-        // Find the actual SVG element inside ResponsiveContainer
-        const svg = element.querySelector("svg");
-        if (!svg) {
-          console.log("SVG not found");
-          return;
-        }
-
-        const rect = svg.getBoundingClientRect();
-        console.log("SVG rect:", rect);
-        console.log("Data length:", data.length);
-
-        // Find the legend element to get its height
-        const legendElement = element.querySelector(".recharts-legend-wrapper");
-        console.log("legendElement", legendElement);
-        const legendHeight = legendElement
-          ? legendElement.getBoundingClientRect().height + 64
-          : 0;
-        console.log("Legend height:", legendHeight);
-
-        // Calculate the X position of the last data point
-        // Chart width minus left and right margins (32px each)
-        const leftMargin = isSmallScreen ? 16 : 32;
-        const rightMargin = isSmallScreen ? 16 : 32;
-        const topMargin = 32;
-        const chartWidth = rect.width - (leftMargin + rightMargin);
-        // Distribute points evenly across the chart width
-        const pointSpacing = chartWidth / Math.max(1, data.length - 1);
-        // Position of last point: left edge + left margin + (spacing * last index)
-        const xPosition =
-          rect.left + leftMargin + pointSpacing * (data.length - 1);
-        const yPosition = rect.top + topMargin;
-
-        // Set tooltip Y position to bottom of chart area (before legend)
-        // Total height - bottom margin - legend height
-        const tooltipY = rect.height - 32 - legendHeight;
-        setTooltipPosition({ x: 0, y: tooltipY });
-
-        console.log("Calculated position:", {
-          xPosition,
-          yPosition,
-          pointSpacing,
-          chartWidth,
-          tooltipY,
-          legendHeight,
-        });
-
-        // Clear any existing tooltip state
-        svg.dispatchEvent(
-          new MouseEvent("mouseleave", {
-            bubbles: true,
-            cancelable: true,
-            view: window,
-          })
-        );
-
-        svg.dispatchEvent(
-          new MouseEvent("mousemove", {
-            bubbles: true,
-            cancelable: true,
-            view: window,
-            clientX: xPosition,
-            clientY: yPosition,
-          })
-        );
+      const dimensions = getChartDimensions(container as HTMLElement);
+      if (!dimensions) {
+        console.log("SVG not found");
+        return;
       }
-    }, 200);
+
+      const {
+        svg,
+        rect,
+        legendHeight,
+        leftMargin,
+        topMargin,
+        pointSpacing,
+      } = dimensions;
+
+      // Calculate position of last data point
+      const xPosition =
+        rect.left + leftMargin + pointSpacing * (data.length - 1);
+      const yPosition = rect.top + topMargin;
+
+      // Set tooltip Y position to bottom of chart area (before legend)
+      const tooltipY = calculateTooltipYPosition(rect.height, legendHeight);
+      setTooltipPosition(tooltipY);
+
+      console.log("Calculated position:", {
+        xPosition,
+        yPosition,
+        pointSpacing,
+        tooltipY,
+        legendHeight,
+      });
+
+      // Trigger tooltip at the calculated position
+      triggerTooltipAtPosition(svg, xPosition, yPosition);
+    }, ANIMATION_DURATION);
 
     return () => clearTimeout(animationTimer);
-  }, [data, annualAmount, start, risk, width, isSmallScreen]);
+  }, [
+    data,
+    annualAmount,
+    start,
+    risk,
+    width,
+    isSmallScreen,
+    getChartDimensions,
+    calculateTooltipYPosition,
+    triggerTooltipAtPosition,
+  ]);
 
   const handleMouseMove = React.useCallback(
     (state: any) => {
@@ -1204,7 +1248,7 @@ export default function PortfolioSimulator() {
 
                     <Area
                       type="monotone"
-                      animationDuration={200}
+                      animationDuration={ANIMATION_DURATION}
                       dataKey="best"
                       stroke={COLORS.best}
                       strokeDasharray="6 6"
@@ -1216,7 +1260,7 @@ export default function PortfolioSimulator() {
                     />
                     <Area
                       type="monotone"
-                      animationDuration={200}
+                      animationDuration={ANIMATION_DURATION}
                       dataKey="expected"
                       stroke={COLORS.expected}
                       dot={false}
@@ -1227,7 +1271,7 @@ export default function PortfolioSimulator() {
                     />
                     <Area
                       type="monotone"
-                      animationDuration={200}
+                      animationDuration={ANIMATION_DURATION}
                       dataKey="worst"
                       stroke={COLORS.worst}
                       strokeDasharray="6 6"
@@ -1239,17 +1283,16 @@ export default function PortfolioSimulator() {
                     />
                     <Area
                       type="monotone"
-                      animationDuration={200}
+                      animationDuration={ANIMATION_DURATION}
                       dataKey="cash"
                       stroke={COLORS.cash}
                       activeDot={false}
                       dot={false}
                       strokeWidth={3}
-                      // fill="url(#cashGradient)"
                       fill="transparent"
                     />
                     <Tooltip
-                      position={{ y: tooltipPosition?.y || 0 }}
+                      position={{ y: tooltipPosition || 0 }}
                       active={!isAnimating}
                       cursor={!isAnimating ? <CustomCursor /> : false}
                       isAnimationActive={false}
@@ -1264,7 +1307,6 @@ export default function PortfolioSimulator() {
                     />
                   </AreaChart>
                 </ResponsiveContainer>
-              </div>
             </div>
           </div>
 
