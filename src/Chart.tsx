@@ -524,6 +524,8 @@ function Radio({
                 style={{
                     width: 24,
                     height: 24,
+                    minWidth: 24,
+                    minHeight: 24,
                     borderRadius: 999,
                     border: `2px solid ${COLORS.teal}`,
                     display: "grid",
