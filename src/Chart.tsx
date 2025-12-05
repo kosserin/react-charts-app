@@ -17,12 +17,12 @@ const COLORS = {
   panel: "#FFFFFF",
   text: "#2B2B2B",
   sub: "#6B7280",
-  brand: "#FF285A", // Nutzer-Brand
-  teal: "#1FA9B2", // UI-Akzent (Slider/Outline)
-  expected: "#5EC5CB", // grün
-  cash: "#999999", // hell-türkis
-  best: "#0B9A5A", // grau gestrichelt
-  worst: "#FFA666", // orange gestrichelt
+  brand: "#FF285A",
+  teal: "#1FA9B2",
+  expected: "#5EC5CB",
+  cash: "#999999",
+  best: "#0B9A5A",
+  worst: "#FFA666",
   border: "#E5E7EB",
   shadow: "0 8px 24px rgba(16,24,40,0.08)",
   radius: 24,
@@ -30,9 +30,9 @@ const COLORS = {
 
 // ---------- Font Families ----------
 const FONTS = {
-  bold: "Galano Grotesque Bold, sans-serif", // fontWeight: 700
-  semibold: "Galano Grotesque SemiBold, sans-serif", // fontWeight: 600
-  medium: "Galano Grotesque Medium, sans-serif", // fontWeight: 500
+  bold: "Galano Grotesque Bold, sans-serif",
+  semibold: "Galano Grotesque SemiBold, sans-serif",
+  medium: "Galano Grotesque Medium, sans-serif",
 };
 
 // ---------- Translations ----------
@@ -181,14 +181,14 @@ type LegendProps = {
   payload?: LegendPayloadItem[];
 };
 
-// ---------- Hilfsfunktionen ----------
+// ---------- Helper functions ----------
 const CHF = new Intl.NumberFormat("de-CH", {
   style: "decimal",
   maximumFractionDigits: 0,
 });
-const fmt = (n: number) => CHF.format(Math.round(n)).replace(/\u00A0/g, " "); // schmales NBSP entfernen
+const fmt = (n: number) => CHF.format(Math.round(n)).replace(/\u00A0/g, " ");
 
-// Annahmen pro Risiko: erwartete Jahresrendite & Bandbreite (Best/Worst)
+// Assumptions per risk: expected annual return & range
 const RISK_TABLE: Record<
   RiskKey,
   {
@@ -271,7 +271,6 @@ const EMPLOYMENT: Record<
 const ANIMATION_DURATION = 200;
 
 export function useWindowSize() {
-  // Initialize with 0 to match SSR - will update after mount
   const [size, setSize] = useState({
     width: 0,
     height: 0,
@@ -285,7 +284,6 @@ export function useWindowSize() {
       });
     }
 
-    // Set initial size immediately after mount
     handleResize();
 
     window.addEventListener("resize", handleResize);
@@ -296,7 +294,7 @@ export function useWindowSize() {
   return size;
 }
 
-// Future Value mit monatlicher Einzahlung
+// Future Value with monthly contribution
 function futureValueMonthly(
   start: number,
   monthly: number,
@@ -309,15 +307,15 @@ function futureValueMonthly(
   return start * growth + monthly * ((growth - 1) / r);
 }
 
-// Datenpunkte pro Jahr erzeugen
+// Generate data points per year
 function buildData(
   age: number,
-  annual: number, // Annual payment
+  annual: number,
   start: number,
   years: number,
   rates: { cash: number; expected: number; best: number; worst: number }
 ) {
-  const monthly = annual / 12; // Convert annual to monthly for calculation
+  const monthly = annual / 12;
 
   return Array.from({ length: years + 1 }, (_, i) => {
     const months = i * 12;
@@ -329,7 +327,6 @@ function buildData(
     const bestRate = rates.best / 100;
     const worstRate = rates.worst / 100;
 
-    // All values use futureValueMonthly with their respective growth rates
     const cash = futureValueMonthly(start, monthly, cashRate, months);
     const expected = futureValueMonthly(start, monthly, expectedRate, months);
     const best = futureValueMonthly(start, monthly, bestRate, months);
@@ -345,7 +342,7 @@ function buildData(
   });
 }
 
-// ---------- UI-Helfer ----------
+// ---------- UI helpers ----------
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -394,7 +391,7 @@ function Slider({
   min,
   max,
   step = 1,
-  steps, // 🔥 NEW: nonlinear steps array
+  steps,
   debounceMs = 200,
 }: {
   value: number;
@@ -403,13 +400,13 @@ function Slider({
   min: number;
   max: number;
   step?: number;
-  steps?: number[]; // 🔥 NEW
+  steps?: number[];
   debounceMs?: number;
 }) {
-  // 🔥 INTERNAL MAPPING MODE (index instead of real value)
+  // INTERNAL MAPPING MODE (index instead of actual value)
   const isMapped = Array.isArray(steps) && steps.length > 0;
 
-  // When mapped: convert real value → index
+  // When mapped: convert actual value to index
   const mappedValue = isMapped ? steps.indexOf(value) : value;
   const sliderMin = isMapped ? 0 : min;
   const sliderMax = isMapped ? steps.length - 1 : max;
@@ -418,13 +415,13 @@ function Slider({
   const [internalValue, setInternalValue] = React.useState(mappedValue);
   const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  // external → internal sync
+  // external to internal sync
   React.useEffect(() => {
     setInternalValue(mappedValue);
   }, [mappedValue]);
 
   const handleChange = (newRawValue: number) => {
-    // 🔥 convert index → real value if mapped
+    // convert index to actual value if mapped
     const newValue = isMapped ? steps[newRawValue] : newRawValue;
 
     setInternalValue(newRawValue);
@@ -597,7 +594,7 @@ export default function PortfolioSimulator() {
       ],
   };
 
-  // Handle employment change and cap to closest valid step if needed
+  // Handle employment change and cap to the closest valid step if needed
   const handleEmploymentChange = (newEmployment: EmploymentKey) => {
     setEmployment(newEmployment);
     const newSteps =
@@ -607,13 +604,13 @@ export default function PortfolioSimulator() {
     setAnnualAmountSteps(newSteps);
     const newMax = ANNUAL_LIMITS[newEmployment];
 
-    // Always find the closest valid step
+    // Always find the closest valid step available
     let closestValue: number;
     if (annualAmount > newMax) {
-      // If over limit, use the highest step available
+      // If over the limit, use the highest step available
       closestValue = newSteps[newSteps.length - 1];
     } else {
-      // Find the closest step to current value
+      // Find the closest step to the current value
       closestValue = newSteps.reduce((prev, curr) =>
         Math.abs(curr - annualAmount) < Math.abs(prev - annualAmount)
           ? curr
@@ -656,7 +653,7 @@ export default function PortfolioSimulator() {
   const yAxisDomain = React.useMemo(() => {
     if (data.length === 0) return [0, 100000];
 
-    // Find min and max across all data series
+    // Find the min and max across all data series
     let min = Infinity;
     let max = -Infinity;
 
@@ -668,7 +665,7 @@ export default function PortfolioSimulator() {
       });
     });
 
-    // No padding
+    // No padding needed
     const padding = (max - min) * 0.0;
     const domain = [min - padding, max + padding];
 
@@ -688,14 +685,14 @@ export default function PortfolioSimulator() {
   const isMobile = width < 1000;
   const isSmallScreen = width < 350;
 
-  // Calculate potential return (Expected - Cash) at current tooltip index
+  // Calculate the potential return (Expected - Cash) at the current tooltip index
   const potentialReturn = React.useMemo(() => {
     const safeIndex = Math.min(tooltipIndex, data.length - 1);
     if (!data[safeIndex]) return 0;
     return data[safeIndex].expected - data[safeIndex].cash;
   }, [tooltipIndex, data]);
 
-  // Helper function to get chart dimensions and layout information
+  // Helper function to get the chart dimensions and layout information
   const getChartDimensions = React.useCallback(
     (container: HTMLElement) => {
       const svg = container.querySelector("svg");
@@ -727,7 +724,7 @@ export default function PortfolioSimulator() {
     [data.length, isSmallScreen]
   );
 
-  // Helper function to calculate tooltip Y position
+  // Helper function to calculate the tooltip Y position
   const calculateTooltipYPosition = React.useCallback(
     (rectHeight: number, legendHeight: number) => {
       return rectHeight - 32 - legendHeight;
@@ -735,19 +732,9 @@ export default function PortfolioSimulator() {
     []
   );
 
-  // Helper function to trigger tooltip at the last data point
+  // Helper function to trigger the tooltip at the last data point
   const triggerTooltipAtPosition = React.useCallback(
     (svg: SVGSVGElement, xPosition: number, yPosition: number) => {
-      // Clear any existing tooltip state
-      svg.dispatchEvent(
-        new MouseEvent("mouseleave", {
-          bubbles: true,
-          cancelable: true,
-          view: window,
-        })
-      );
-
-      // Trigger tooltip at the calculated position
       svg.dispatchEvent(
         new MouseEvent("mousemove", {
           bubbles: true,
@@ -767,7 +754,7 @@ export default function PortfolioSimulator() {
     setIsAnimating(true);
     setTooltipIndex(data.length - 1);
 
-    // Wait for animation to finish before positioning tooltip
+    // Wait for the animation to finish before positioning the tooltip
     const animationTimer = setTimeout(() => {
       setIsAnimating(false);
 
@@ -794,7 +781,7 @@ export default function PortfolioSimulator() {
         rect.left + leftMargin + pointSpacing * (data.length - 1);
       const yPosition = rect.top + topMargin;
 
-      // Set tooltip Y position to bottom of chart area (before legend)
+      // Set tooltip Y position to bottom of chart area (above legend)
       const tooltipY = calculateTooltipYPosition(rect.height, legendHeight);
       setTooltipPosition(tooltipY);
 
@@ -903,7 +890,6 @@ export default function PortfolioSimulator() {
       >
         {payload.map((entry: LegendPayloadItem, index: number) => {
           const key = entry.dataKey as keyof DataPoint;
-          // For cash, show actual accumulated value from data, not data
           const currentValue = data[safeIndex]?.[key] as number;
 
           return (
@@ -917,7 +903,6 @@ export default function PortfolioSimulator() {
                 minWidth: 120,
               }}
             >
-              {/* Color Box */}
               <div
                 style={{
                   height: isSmallScreen ? 24 : 32,
@@ -928,7 +913,6 @@ export default function PortfolioSimulator() {
                 }}
               />
 
-              {/* Text Content */}
               <div
                 style={{
                   display: "flex",
@@ -1007,13 +991,11 @@ export default function PortfolioSimulator() {
     const x = props.points?.[0]?.x || 0;
     const y2 = props.height + props.top + 24;
 
-    // Use the payload directly from cursor props for real-time positioning
     const payload = props.payload || [];
     if (payload.length === 0) return null;
 
     const dataPoint = payload[0].payload;
 
-    // Calculate y positions for all dots
     const chartHeight = props.height;
     const yAxisDomainMin = yAxisDomain[0];
     const yAxisDomainMax = yAxisDomain[1];
@@ -1034,7 +1016,6 @@ export default function PortfolioSimulator() {
 
     return (
       <g>
-        {/* Cursor line */}
         <line
           x1={x}
           y1={bestY}
@@ -1120,7 +1101,6 @@ export default function PortfolioSimulator() {
                 touchAction: "pan-y",
               }}
             >
-              {/* Absolutely positioned title inside the chart */}
               <div
                 style={{
                   position: "absolute",
@@ -1152,7 +1132,7 @@ export default function PortfolioSimulator() {
                 >
                   CHF {fmt(potentialReturn)}
                 </h2>
-                {/* TODO: Add some popup for info button click */}
+                {/* TODO: Add a popup on the info button click */}
                 <button
                   onClick={() => alert("asaa")}
                   style={{
