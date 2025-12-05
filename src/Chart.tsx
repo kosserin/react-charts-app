@@ -1129,20 +1129,15 @@ export default function PortfolioSimulator() {
                   {t.info}
                 </button>
               </div>
-              <div
-                style={{
-                  aspectRatio: isSmallScreen
-                    ? 0.65
-                    : isMobile
-                    ? 0.9
-                    : undefined,
-                  height: isMobile ? undefined : "100%",
-                }}
-              >
                 <ResponsiveContainer
                   ref={chartRef}
                   width="100%"
-                  height="100%"
+                  height={isMobile ? undefined : "100%"}
+                aspect={isSmallScreen
+                    ? 0.65
+                    : isMobile
+                    ? 0.9
+                    : undefined}
                   initialDimension={{ width: 250, height: 250 }}
                 >
                   <AreaChart
