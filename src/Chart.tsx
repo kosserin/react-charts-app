@@ -718,7 +718,6 @@ export default function PortfolioSimulator() {
 
       const leftMargin = isSmallScreen ? 16 : 32;
       const rightMargin = isSmallScreen ? 16 : 32;
-      const topMargin = 32;
       const chartWidth = rect.width - (leftMargin + rightMargin);
       const pointSpacing = chartWidth / Math.max(1, data.length - 1);
 
@@ -728,7 +727,6 @@ export default function PortfolioSimulator() {
         legendHeight,
         leftMargin,
         rightMargin,
-        topMargin,
         chartWidth,
         pointSpacing,
       };
@@ -793,7 +791,7 @@ export default function PortfolioSimulator() {
       // Calculate position of last data point
       const xPosition =
         rect.left + leftMargin + pointSpacing * (data.length - 1);
-      const yPosition = rect.top + topMargin;
+      const yPosition = rect.top + 100;
 
       // Set tooltip Y position to bottom of chart area (above legend)
       const tooltipY = calculateTooltipYPosition(rect.height, legendHeight);
