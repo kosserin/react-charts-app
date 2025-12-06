@@ -271,9 +271,12 @@ const EMPLOYMENT: Record<
 const ANIMATION_DURATION = 200;
 
 export function useWindowSize() {
-  const [size, setSize] = useState({
-    width: 0,
-    height: 0,
+  const [size, setSize] = useState<{
+    width: number | undefined;
+    height: number | undefined;
+  }>({
+    width: undefined,
+    height: undefined,
   });
 
   useEffect(() => {
@@ -579,6 +582,13 @@ function Radio({
 
 // ---------- Main component ----------
 export default function PortfolioSimulator() {
+  // Track if component is mounted to prevent hydration mismatches
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // Get locale from Framer
   // const localeCode = useLocaleCode?.() || "en"
   const localeCode = "en";
@@ -682,8 +692,9 @@ export default function PortfolioSimulator() {
   const chartRef = React.useRef(null);
 
   const { width } = useWindowSize();
-  const isMobile = width < 1000;
-  const isSmallScreen = width < 350;
+  // Use safe defaults for SSR - assume desktop on server, then update on client
+  const isMobile = isMounted && width !== undefined ? width < 1000 : false;
+  const isSmallScreen = isMounted && width !== undefined ? width < 350 : false;
 
   // Calculate the potential return (Expected - Cash) at the current tooltip index
   const potentialReturn = React.useMemo(() => {
@@ -699,6 +710,7 @@ export default function PortfolioSimulator() {
       if (!svg) return null;
 
       const rect = svg.getBoundingClientRect();
+      console.debug("rect", rect);
       const legendElement = container.querySelector(".recharts-legend-wrapper");
       const legendHeight = legendElement
         ? legendElement.getBoundingClientRect().height + 64
@@ -750,6 +762,9 @@ export default function PortfolioSimulator() {
 
   // Reset tooltip index when data changes to show the last point
   React.useEffect(() => {
+    // Only run this effect on the client side after mounting
+    if (!isMounted) return;
+
     // Start animation and set tooltip to last data point
     setIsAnimating(true);
     setTooltipIndex(data.length - 1);
@@ -772,7 +787,6 @@ export default function PortfolioSimulator() {
         rect,
         legendHeight,
         leftMargin,
-        topMargin,
         pointSpacing,
       } = dimensions;
 
@@ -799,6 +813,7 @@ export default function PortfolioSimulator() {
 
     return () => clearTimeout(animationTimer);
   }, [
+    isMounted,
     data,
     annualAmount,
     start,
@@ -877,15 +892,17 @@ export default function PortfolioSimulator() {
 
     if (!payload) return null;
 
+    const isNarrow = isMounted && width !== undefined ? width < 1200 : false;
+
     return (
       <div
         style={{
           marginTop: "0px",
-          display: width < 1200 ? "grid" : "flex",
-          flexWrap: width < 1200 ? undefined : "wrap",
+          display: isNarrow ? "grid" : "flex",
+          flexWrap: isNarrow ? undefined : "wrap",
           justifyContent: "space-between",
           gap: isSmallScreen ? 0 : 8,
-          gridTemplateColumns: width < 1200 ? "repeat(2, 1fr)" : undefined,
+          gridTemplateColumns: isNarrow ? "repeat(2, 1fr)" : undefined,
         }}
       >
         {payload.map((entry: LegendPayloadItem, index: number) => {
@@ -1033,6 +1050,23 @@ export default function PortfolioSimulator() {
     );
   };
 
+  // Don't render anything until mounted to avoid hydration issues
+  if (!isMounted) {
+    return (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          background: COLORS.bg,
+          color: COLORS.text,
+          padding: "100px 48px",
+          boxSizing: "border-box",
+          minHeight: "600px",
+        }}
+      />
+    );
+  }
+
   return (
     <>
       <style>{`
@@ -1099,6 +1133,7 @@ export default function PortfolioSimulator() {
                 width: "100%",
                 flex: 1,
                 touchAction: "pan-y",
+                minHeight: 400,
               }}
             >
               <div
@@ -1151,17 +1186,17 @@ export default function PortfolioSimulator() {
                   {t.info}
                 </button>
               </div>
-                <ResponsiveContainer
-                  ref={chartRef}
-                  width="100%"
-                  height={isMobile ? undefined : "100%"}
+              <ResponsiveContainer
+                ref={chartRef}
+                width="100%"
+                height={isMobile ? undefined : "100%"}
                 aspect={isSmallScreen
-                    ? 0.65
-                    : isMobile
-                    ? 0.9
-                    : undefined}
-                  initialDimension={{ width: 250, height: 250 }}
-                >
+                  ? 0.65
+                  : isMobile
+                  ? 0.9
+                  : undefined}
+                initialDimension={{ width: 250, height: 250 }}
+              >
                   <AreaChart
                     data={data}
                     onMouseMove={handleMouseMove}
