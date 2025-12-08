@@ -341,12 +341,15 @@ function LabelRow({
   left: React.ReactNode;
   right?: React.ReactNode;
 }) {
+  const { width } = useWindowSize();
+  const isMediumBreakpoint = width !== undefined ? width >= 810 : false;
+
   return (
     <div
       style={{
         display: "flex",
         justifyContent: "space-between",
-        fontSize: 18,
+        fontSize: isMediumBreakpoint ? 18 : 16,
         fontFamily: FONTS.semibold,
         color: COLORS.text,
         marginBottom: 12,
@@ -485,6 +488,9 @@ function Radio({
   label: string;
   sub?: string;
 }) {
+  const { width } = useWindowSize();
+  const isMediumBreakpoint = width !== undefined ? width >= 810 : false;
+
   return (
     <button
       onClick={onChange}
@@ -528,7 +534,7 @@ function Radio({
         style={{
           fontFamily: FONTS.semibold,
           color: COLORS.text,
-          fontSize: 16,
+          fontSize: isMediumBreakpoint ? 16 : 14,
           textAlign: "left",
           whiteSpace: "nowrap",
         }}
@@ -542,7 +548,7 @@ function Radio({
             color: COLORS.sub,
             textAlign: "right",
             fontFamily: FONTS.medium,
-            fontSize: 16,
+            fontSize: isMediumBreakpoint ? 16 : 14,
             whiteSpace: "normal",
           }}
         >
@@ -665,9 +671,12 @@ export default function PortfolioSimulator() {
   const chartRef = React.useRef(null);
 
   const { width } = useWindowSize();
+  console.debug("width", width);
   // Use safe defaults for SSR - assume desktop on server, then update on client
-  const isMobile = isMounted && width !== undefined ? width < 1000 : false;
-  const isSmallScreen = isMounted && width !== undefined ? width < 350 : false;
+  const isLargeBreakpoint = isMounted && width !== undefined ? width >= 1200 : false;
+  const isMediumBreakpoint = isMounted && width !== undefined ? width >= 810 : false;
+  const isSmallBreakpoint = isMounted && width !== undefined ? width >= 480 : false;
+  const isXSmallBreakpoint = isMounted && width !== undefined ? width >= 350 : false;
 
   // Calculate the potential return (Expected - Cash) at the current tooltip index
   const potentialReturn = React.useMemo(() => {
@@ -689,8 +698,8 @@ export default function PortfolioSimulator() {
         ? legendElement.getBoundingClientRect().height + 64
         : 0;
 
-      const leftMargin = isSmallScreen ? 16 : 32;
-      const rightMargin = isSmallScreen ? 16 : 32;
+      const leftMargin = isMediumBreakpoint ? 32 : 27;
+      const rightMargin = isMediumBreakpoint ? 32 : 27;
       const chartWidth = rect.width - (leftMargin + rightMargin);
       const pointSpacing = chartWidth / Math.max(1, data.length - 1);
 
@@ -704,7 +713,7 @@ export default function PortfolioSimulator() {
         pointSpacing,
       };
     },
-    [data.length, isSmallScreen]
+    [data.length, isMediumBreakpoint]
   );
 
   // Helper function to calculate the tooltip Y position
@@ -784,7 +793,7 @@ export default function PortfolioSimulator() {
     start,
     risk,
     width,
-    isSmallScreen,
+    isMediumBreakpoint,
     getChartDimensions,
     calculateTooltipYPosition,
     triggerTooltipAtPosition,
@@ -857,17 +866,15 @@ export default function PortfolioSimulator() {
 
     if (!payload) return null;
 
-    const isNarrow = isMounted && width !== undefined ? width < 1200 : false;
-
     return (
       <div
         style={{
           marginTop: "0px",
-          display: isNarrow ? "grid" : "flex",
-          flexWrap: isNarrow ? undefined : "wrap",
+          display: isLargeBreakpoint ? "flex" : "grid",
+          flexWrap: isLargeBreakpoint ? "wrap" : undefined,
           justifyContent: "space-between",
-          gap: isSmallScreen ? 0 : 8,
-          gridTemplateColumns: isNarrow ? "repeat(2, 1fr)" : undefined,
+          gap: isMediumBreakpoint ? 8 : 0,
+          gridTemplateColumns: isLargeBreakpoint ? undefined : "repeat(2, 1fr)",
         }}
       >
         {payload.map((entry: LegendPayloadItem, index: number) => {
@@ -887,8 +894,8 @@ export default function PortfolioSimulator() {
             >
               <div
                 style={{
-                  height: isSmallScreen ? 24 : 32,
-                  width: isSmallScreen ? 24 : 32,
+                  height: isMediumBreakpoint ? 32 : 24,
+                  width: isMediumBreakpoint ? 32 : 24,
                   borderRadius: "4px",
                   backgroundColor: colorMap[key] || entry.color,
                   flexShrink: 0,
@@ -904,7 +911,7 @@ export default function PortfolioSimulator() {
               >
                 <span
                   style={{
-                    fontSize: 16,
+                    fontSize: isMediumBreakpoint ? 16 : 14,
                     fontFamily: FONTS.semibold,
                     color: COLORS.text,
                   }}
@@ -913,7 +920,7 @@ export default function PortfolioSimulator() {
                 </span>
                 <span
                   style={{
-                    fontSize: 16,
+                    fontSize: isMediumBreakpoint ? 16 : 14,
                     fontFamily: FONTS.medium,
                     color: "#6E6E6E",
                   }}
@@ -1059,10 +1066,10 @@ export default function PortfolioSimulator() {
       >
         <div
           style={{
-            display: isMobile ? "flex" : "grid",
-            flexDirection: isMobile ? "column-reverse" : undefined,
-            gridTemplateColumns: isMobile ? undefined : "1.8fr 1.2fr",
-            gap: isMobile ? 0 : 32,
+            display: isMediumBreakpoint ? "grid" : "flex",
+            flexDirection: isMediumBreakpoint ? undefined : "column-reverse",
+            gridTemplateColumns: isMediumBreakpoint ? "1.8fr 1.2fr" : undefined,
+            gap: isMediumBreakpoint ? 32 : 0,
             height: "100%",
           }}
         >
@@ -1070,15 +1077,15 @@ export default function PortfolioSimulator() {
           <div
             style={{
               background: COLORS.panel,
-              ...(isMobile
+              ...(isMediumBreakpoint
                 ? {
-                    borderTopLeftRadius: 0,
-                    borderTopRightRadius: 0,
-                    borderBottomLeftRadius: COLORS.radius,
-                    borderBottomRightRadius: COLORS.radius,
-                  }
+                  borderRadius: COLORS.radius,
+                }
                 : {
-                    borderRadius: COLORS.radius,
+                  borderTopLeftRadius: 0,
+                  borderTopRightRadius: 0,
+                  borderBottomLeftRadius: COLORS.radius,
+                  borderBottomRightRadius: COLORS.radius,
                   }),
               display: "flex",
               pointerEvents: isAnimating ? "none" : "auto",
@@ -1098,11 +1105,11 @@ export default function PortfolioSimulator() {
                 style={{
                   position: "absolute",
                   top: 0,
-                  left: isSmallScreen ? 16 : 32,
+                  left: isLargeBreakpoint ? 32 : 16,
                   zIndex: 10,
                   pointerEvents: "auto",
                   textAlign: "left",
-                  marginTop: 32,
+                  marginTop: isMediumBreakpoint ? 32 : 16,
                 }}
               >
                 <h3
@@ -1110,18 +1117,18 @@ export default function PortfolioSimulator() {
                     margin: 0,
                     fontFamily: FONTS.semibold,
                     color: "#333333",
-                    fontSize: 18,
+                    fontSize: isLargeBreakpoint ? 18 : 16,
                   }}
                 >
                   {t.potentialReturn}
                 </h3>
                 <h2
                   style={{
-                    margin: "8px 0",
+                    margin: "8px 0 0",
                     color: COLORS.bg,
                     fontFamily: FONTS.bold,
                     lineHeight: 1,
-                    fontSize: 32,
+                    fontSize: isLargeBreakpoint ? 32 : 22,
                   }}
                 >
                   {fmt(potentialReturn)} CHF
@@ -1130,16 +1137,16 @@ export default function PortfolioSimulator() {
               <ResponsiveContainer
                 ref={chartRef}
                 width="100%"
-                height={isMobile ? undefined : "100%"}
-                aspect={isSmallScreen ? 0.65 : isMobile ? 0.9 : undefined}
+                height={isMediumBreakpoint ? "100%" : undefined}
+                aspect={isMediumBreakpoint ? undefined : isSmallBreakpoint ? 1.2 : isXSmallBreakpoint ? 0.8 : 0.6}
                 initialDimension={{ width: 250, height: 250 }}
               >
                 <AreaChart
                   data={data}
                   onMouseMove={handleMouseMove}
                   margin={{
-                    left: isSmallScreen ? 16 : 32,
-                    right: isSmallScreen ? 16 : 32,
+                    left: isMediumBreakpoint ? 32 : 27,
+                    right: isMediumBreakpoint ? 32 : 27,
                     top: 32,
                     bottom: 32,
                   }}
@@ -1240,7 +1247,7 @@ export default function PortfolioSimulator() {
                   <Legend
                     verticalAlign="bottom"
                     align="left"
-                    wrapperStyle={{ paddingTop: isMobile ? 16 : 32 }}
+                    wrapperStyle={{ paddingTop: isLargeBreakpoint ? 32 : 16 }}
                     content={<CustomLegend />}
                   />
                 </AreaChart>
@@ -1252,21 +1259,21 @@ export default function PortfolioSimulator() {
           <div
             style={{
               background: COLORS.panel,
-              ...(isMobile
+              ...(isMediumBreakpoint
                 ? {
-                    borderTopLeftRadius: COLORS.radius,
-                    borderTopRightRadius: COLORS.radius,
-                    borderBottomLeftRadius: 0,
-                    borderBottomRightRadius: 0,
-                  }
+                  borderRadius: COLORS.radius,
+                }
                 : {
-                    borderRadius: COLORS.radius,
+                  borderTopLeftRadius: COLORS.radius,
+                  borderTopRightRadius: COLORS.radius,
+                  borderBottomLeftRadius: 0,
+                  borderBottomRightRadius: 0,
                   }),
-              padding: isSmallScreen ? "32px 16px" : 32,
+              padding: isMediumBreakpoint ? 32 : "32px 16px 0 16px",
               display: "flex",
               flexDirection: "column",
-              gap: 32,
-              minWidth: isMobile ? "unset" : 300,
+              gap: isMediumBreakpoint ? 32 : 16,
+              minWidth: isLargeBreakpoint ? 300 : "unset",
             }}
           >
             {/* Ages and Employment */}
@@ -1294,8 +1301,7 @@ export default function PortfolioSimulator() {
               <div
                 style={{
                   display: "flex",
-                  flexDirection: isSmallScreen ? "column" : "row",
-                  gap: isSmallScreen ? 0 : 8,
+                  flexWrap: "wrap",
                   justifyContent: "space-between",
                 }}
               >
