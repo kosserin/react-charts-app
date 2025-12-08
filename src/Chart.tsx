@@ -780,13 +780,7 @@ export default function PortfolioSimulator() {
         return;
       }
 
-      const {
-        svg,
-        rect,
-        legendHeight,
-        leftMargin,
-        pointSpacing,
-      } = dimensions;
+      const { svg, rect, legendHeight, leftMargin, pointSpacing } = dimensions;
 
       // Calculate position of last data point
       const xPosition =
@@ -1188,136 +1182,120 @@ export default function PortfolioSimulator() {
                 ref={chartRef}
                 width="100%"
                 height={isMobile ? undefined : "100%"}
-                aspect={isSmallScreen
-                  ? 0.65
-                  : isMobile
-                  ? 0.9
-                  : undefined}
+                aspect={isSmallScreen ? 0.65 : isMobile ? 0.9 : undefined}
                 initialDimension={{ width: 250, height: 250 }}
               >
-                  <AreaChart
-                    data={data}
-                    onMouseMove={handleMouseMove}
-                    margin={{
-                      left: isSmallScreen ? 16 : 32,
-                      right: isSmallScreen ? 16 : 32,
-                      top: 32,
-                      bottom: 32,
-                    }}
-                  >
-                    <XAxis tick={false} axisLine={false} />
-                    <YAxis
-                      tick={false}
-                      axisLine={false}
-                      mirror={true}
-                      domain={yAxisDomain}
-                    />
-                    <defs>
-                      <linearGradient
-                        id="bestGradient"
-                        x1="1"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop offset="0%" stopColor="#C9F8DE" stopOpacity={1} />
-                        <stop
-                          offset="100%"
-                          stopColor="#FFFFFF"
-                          stopOpacity={1}
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="expectedGradient"
-                        x1="1"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop offset="0%" stopColor="#C2EFF2" stopOpacity={1} />
-                        <stop
-                          offset="100%"
-                          stopColor="#FFFFFF"
-                          stopOpacity={1}
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="worstGradient"
-                        x1="1"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop offset="0%" stopColor="#FFEADB" stopOpacity={1} />
-                        <stop
-                          offset="100%"
-                          stopColor="#FFFFFF"
-                          stopOpacity={1}
-                        />
-                      </linearGradient>
-                    </defs>
+                <AreaChart
+                  data={data}
+                  onMouseMove={handleMouseMove}
+                  margin={{
+                    left: isSmallScreen ? 16 : 32,
+                    right: isSmallScreen ? 16 : 32,
+                    top: 32,
+                    bottom: 32,
+                  }}
+                >
+                  <XAxis tick={false} axisLine={false} />
+                  <YAxis
+                    tick={false}
+                    axisLine={false}
+                    mirror={true}
+                    domain={yAxisDomain}
+                  />
+                  <defs>
+                    <linearGradient
+                      id="bestGradient"
+                      x1="1"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="0%" stopColor="#C9F8DE" stopOpacity={1} />
+                      <stop offset="100%" stopColor="#FFFFFF" stopOpacity={1} />
+                    </linearGradient>
+                    <linearGradient
+                      id="expectedGradient"
+                      x1="1"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="0%" stopColor="#C2EFF2" stopOpacity={1} />
+                      <stop offset="100%" stopColor="#FFFFFF" stopOpacity={1} />
+                    </linearGradient>
+                    <linearGradient
+                      id="worstGradient"
+                      x1="1"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="0%" stopColor="#FFEADB" stopOpacity={1} />
+                      <stop offset="100%" stopColor="#FFFFFF" stopOpacity={1} />
+                    </linearGradient>
+                  </defs>
 
-                    <Area
-                      type="monotone"
-                      animationDuration={ANIMATION_DURATION}
-                      dataKey="best"
-                      stroke={COLORS.best}
-                      strokeDasharray="6 6"
-                      dot={false}
-                      strokeWidth={2}
-                      activeDot={false}
-                      fill="url(#bestGradient)"
-                      fillOpacity={1}
-                    />
-                    <Area
-                      type="monotone"
-                      animationDuration={ANIMATION_DURATION}
-                      dataKey="expected"
-                      stroke={COLORS.expected}
-                      dot={false}
-                      strokeWidth={3}
-                      activeDot={false}
-                      fill="url(#expectedGradient)"
-                      fillOpacity={1}
-                    />
-                    <Area
-                      type="monotone"
-                      animationDuration={ANIMATION_DURATION}
-                      dataKey="worst"
-                      stroke={COLORS.worst}
-                      strokeDasharray="6 6"
-                      dot={false}
-                      strokeWidth={2}
-                      activeDot={false}
-                      fill="url(#worstGradient)"
-                      fillOpacity={1}
-                    />
-                    <Area
-                      type="monotone"
-                      animationDuration={ANIMATION_DURATION}
-                      dataKey="cash"
-                      stroke={COLORS.cash}
-                      activeDot={false}
-                      dot={false}
-                      strokeWidth={3}
-                      fill="transparent"
-                    />
-                    <Tooltip
-                      position={{ y: tooltipPosition || 0 }}
-                      active={!isAnimating}
-                      cursor={!isAnimating ? <CustomCursor /> : false}
-                      isAnimationActive={false}
-                      allowEscapeViewBox={{ x: true, y: true }}
-                      content={<CustomTooltip />}
-                    />
-                    <Legend
-                      verticalAlign="bottom"
-                      align="left"
-                      wrapperStyle={{ paddingTop: isMobile ? 16 : 32 }}
-                      content={<CustomLegend />}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                  <Area
+                    type="monotone"
+                    animationDuration={ANIMATION_DURATION}
+                    dataKey="best"
+                    stroke={COLORS.best}
+                    strokeDasharray="6 6"
+                    dot={false}
+                    strokeWidth={2}
+                    activeDot={false}
+                    fill="url(#bestGradient)"
+                    fillOpacity={1}
+                  />
+                  <Area
+                    type="monotone"
+                    animationDuration={ANIMATION_DURATION}
+                    dataKey="expected"
+                    stroke={COLORS.expected}
+                    dot={false}
+                    strokeWidth={3}
+                    activeDot={false}
+                    fill="url(#expectedGradient)"
+                    fillOpacity={1}
+                  />
+                  <Area
+                    type="monotone"
+                    animationDuration={ANIMATION_DURATION}
+                    dataKey="worst"
+                    stroke={COLORS.worst}
+                    strokeDasharray="6 6"
+                    dot={false}
+                    strokeWidth={2}
+                    activeDot={false}
+                    fill="url(#worstGradient)"
+                    fillOpacity={1}
+                  />
+                  <Area
+                    type="monotone"
+                    animationDuration={ANIMATION_DURATION}
+                    dataKey="cash"
+                    stroke={COLORS.cash}
+                    activeDot={false}
+                    dot={false}
+                    strokeWidth={3}
+                    fill="transparent"
+                  />
+                  <Tooltip
+                    position={{ y: tooltipPosition || 0 }}
+                    active={!isAnimating}
+                    cursor={!isAnimating ? <CustomCursor /> : false}
+                    isAnimationActive={false}
+                    allowEscapeViewBox={{ x: true, y: true }}
+                    content={<CustomTooltip />}
+                  />
+                  <Legend
+                    verticalAlign="bottom"
+                    align="left"
+                    wrapperStyle={{ paddingTop: isMobile ? 16 : 32 }}
+                    content={<CustomLegend />}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
