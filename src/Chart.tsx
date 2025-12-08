@@ -12,7 +12,7 @@ import {
 // import { useLocaleCode } from "framer"
 
 // ---------- Design-Tokens (einfach anpassbar) ----------
-const COLORS = {
+export const COLORS = {
   bg: "#1FA9B2",
   panel: "#FFFFFF",
   text: "#2B2B2B",
@@ -40,8 +40,6 @@ const TRANSLATIONS = {
   en: {
     title: "Calculate your potential 3a assets",
     potentialReturn: "Potential return:",
-    info: "Info",
-    yourDetails: "Your details",
     yourAge: "Your age",
     annualPayments: "Annual payments",
     startingAmount: "Starting amount",
@@ -61,10 +59,7 @@ const TRANSLATIONS = {
     equityShare: "equity share",
   },
   "de-CH": {
-    title: "Berechne dein potenzielles 3a-Vermögen",
     potentialReturn: "Potenzielle Rendite:",
-    info: "Info",
-    yourDetails: "Deine Details",
     yourAge: "Dein Alter",
     annualPayments: "Jährliche Einzahlungen",
     startingAmount: "Startbetrag",
@@ -84,10 +79,7 @@ const TRANSLATIONS = {
     equityShare: "Aktienanteil",
   },
   fr: {
-    title: "Calculez votre avoir potentiel 3a",
     potentialReturn: "Rendement potentiel:",
-    info: "Info",
-    yourDetails: "Vos détails",
     yourAge: "Votre âge",
     annualPayments: "Versements annuels",
     startingAmount: "Montant de départ",
@@ -107,10 +99,7 @@ const TRANSLATIONS = {
     equityShare: "part d'actions",
   },
   it: {
-    title: "Calcola il tuo potenziale patrimonio 3a",
     potentialReturn: "Rendimento potenziale:",
-    info: "Info",
-    yourDetails: "I tuoi dettagli",
     yourAge: "La tua età",
     annualPayments: "Versamenti annuali",
     startingAmount: "Importo iniziale",
@@ -343,22 +332,6 @@ function buildData(
       worst: worst,
     };
   });
-}
-
-// ---------- UI helpers ----------
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        textAlign: "left",
-        fontSize: 32,
-        color: COLORS.text,
-        fontFamily: FONTS.bold,
-      }}
-    >
-      {children}
-    </div>
-  );
 }
 
 function LabelRow({
@@ -1049,7 +1022,6 @@ export default function PortfolioSimulator() {
         style={{
           width: "100%",
           height: "100%",
-          background: COLORS.bg,
           color: COLORS.text,
           padding: "100px 48px",
           boxSizing: "border-box",
@@ -1081,9 +1053,7 @@ export default function PortfolioSimulator() {
         style={{
           width: "100%",
           height: "100%",
-          background: COLORS.bg,
           color: COLORS.text,
-          padding: `100px ${isMobile ? 16 : 48}px`,
           boxSizing: "border-box",
         }}
       >
@@ -1115,10 +1085,6 @@ export default function PortfolioSimulator() {
               flexDirection: "column",
             }}
           >
-            <div style={{ padding: isSmallScreen ? 16 : 32 }}>
-              <SectionTitle>{t.title}</SectionTitle>
-            </div>
-
             <div
               style={{
                 position: "relative",
@@ -1136,6 +1102,7 @@ export default function PortfolioSimulator() {
                   zIndex: 10,
                   pointerEvents: "auto",
                   textAlign: "left",
+                  marginTop: 32,
                 }}
               >
                 <h3
@@ -1159,24 +1126,6 @@ export default function PortfolioSimulator() {
                 >
                   {fmt(potentialReturn)} CHF
                 </h2>
-                {/* TODO: Add a popup on the info button click */}
-                <button
-                  onClick={() => alert("asaa")}
-                  style={{
-                    backgroundColor: "rgba(0, 0, 0, 0.05)",
-                    border: "none",
-                    cursor: "pointer",
-                    borderRadius: 100,
-                    height: 36,
-                    paddingInline: 12,
-                    fontSize: 14,
-                    fontFamily: FONTS.semibold,
-                    lineHeight: 1,
-                    color: COLORS.text,
-                  }}
-                >
-                  {t.info}
-                </button>
               </div>
               <ResponsiveContainer
                 ref={chartRef}
@@ -1320,8 +1269,6 @@ export default function PortfolioSimulator() {
               minWidth: isMobile ? "unset" : 300,
             }}
           >
-            <SectionTitle>{t.yourDetails}</SectionTitle>
-
             {/* Ages and Employment */}
             <div
               style={{
