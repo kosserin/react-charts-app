@@ -1259,7 +1259,11 @@ export default function PortfolioSimulator() {
                   <Legend
                     verticalAlign="bottom"
                     align="left"
-                    wrapperStyle={{ paddingTop: isLargeBreakpoint ? 32 : 16 }}
+                    wrapperStyle={{
+                      paddingTop: isLargeBreakpoint ? 32 : 16,
+                      width: "calc(100% - 32px)",
+                      marginLeft: -11,
+                    }}
                     content={<CustomLegend />}
                   />
                 </AreaChart>
