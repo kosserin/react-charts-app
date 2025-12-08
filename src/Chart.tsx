@@ -673,10 +673,14 @@ export default function PortfolioSimulator() {
   const { width } = useWindowSize();
   console.debug("width", width);
   // Use safe defaults for SSR - assume desktop on server, then update on client
-  const isLargeBreakpoint = isMounted && width !== undefined ? width >= 1200 : false;
-  const isMediumBreakpoint = isMounted && width !== undefined ? width >= 810 : false;
-  const isSmallBreakpoint = isMounted && width !== undefined ? width >= 480 : false;
-  const isXSmallBreakpoint = isMounted && width !== undefined ? width >= 350 : false;
+  const isLargeBreakpoint =
+    isMounted && width !== undefined ? width >= 1200 : false;
+  const isMediumBreakpoint =
+    isMounted && width !== undefined ? width >= 810 : false;
+  const isSmallBreakpoint =
+    isMounted && width !== undefined ? width >= 480 : false;
+  const isXSmallBreakpoint =
+    isMounted && width !== undefined ? width >= 350 : false;
 
   // Calculate the potential return (Expected - Cash) at the current tooltip index
   const potentialReturn = React.useMemo(() => {
@@ -1079,13 +1083,13 @@ export default function PortfolioSimulator() {
               background: COLORS.panel,
               ...(isMediumBreakpoint
                 ? {
-                  borderRadius: COLORS.radius,
-                }
+                    borderRadius: COLORS.radius,
+                  }
                 : {
-                  borderTopLeftRadius: 0,
-                  borderTopRightRadius: 0,
-                  borderBottomLeftRadius: COLORS.radius,
-                  borderBottomRightRadius: COLORS.radius,
+                    borderTopLeftRadius: 0,
+                    borderTopRightRadius: 0,
+                    borderBottomLeftRadius: COLORS.radius,
+                    borderBottomRightRadius: COLORS.radius,
                   }),
               display: "flex",
               pointerEvents: isAnimating ? "none" : "auto",
@@ -1138,7 +1142,15 @@ export default function PortfolioSimulator() {
                 ref={chartRef}
                 width="100%"
                 height={isMediumBreakpoint ? "100%" : undefined}
-                aspect={isMediumBreakpoint ? undefined : isSmallBreakpoint ? 1.2 : isXSmallBreakpoint ? 0.8 : 0.6}
+                aspect={
+                  isMediumBreakpoint
+                    ? undefined
+                    : isSmallBreakpoint
+                    ? 1.2
+                    : isXSmallBreakpoint
+                    ? 0.8
+                    : 0.6
+                }
                 initialDimension={{ width: 250, height: 250 }}
               >
                 <AreaChart
@@ -1261,13 +1273,13 @@ export default function PortfolioSimulator() {
               background: COLORS.panel,
               ...(isMediumBreakpoint
                 ? {
-                  borderRadius: COLORS.radius,
-                }
+                    borderRadius: COLORS.radius,
+                  }
                 : {
-                  borderTopLeftRadius: COLORS.radius,
-                  borderTopRightRadius: COLORS.radius,
-                  borderBottomLeftRadius: 0,
-                  borderBottomRightRadius: 0,
+                    borderTopLeftRadius: COLORS.radius,
+                    borderTopRightRadius: COLORS.radius,
+                    borderBottomLeftRadius: 0,
+                    borderBottomRightRadius: 0,
                   }),
               padding: isMediumBreakpoint ? 32 : "32px 16px 0 16px",
               display: "flex",
