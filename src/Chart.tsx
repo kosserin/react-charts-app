@@ -807,6 +807,7 @@ export default function PortfolioSimulator() {
     (state: any) => {
       if (
         state?.activeTooltipIndex !== undefined &&
+        state.activeTooltipIndex !== null &&
         state.activeTooltipIndex !== tooltipIndex
       ) {
         setTooltipIndex(parseInt(state.activeTooltipIndex));
