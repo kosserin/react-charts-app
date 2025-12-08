@@ -39,10 +39,10 @@ const FONTS = {
 const TRANSLATIONS = {
   en: {
     title: "Calculate your potential 3a assets",
-    potentialReturn: "Potential Return:",
+    potentialReturn: "Potential return:",
     info: "Info",
-    yourDetails: "Your Details",
-    yourAge: "Your Age",
+    yourDetails: "Your details",
+    yourAge: "Your age",
     annualPayments: "Annual payments",
     startingAmount: "Starting amount",
     riskLevel: "Risk level",
@@ -53,9 +53,9 @@ const TRANSLATIONS = {
     dynamic: "Dynamic 65",
     ambitious: "Ambitious 80",
     offensive: "Offensive 100",
-    bestCase: "Best Case",
+    bestCase: "Best case",
     expected: "Expected",
-    worstCase: "Worst Case",
+    worstCase: "Worst case",
     cash: "Cash",
     inYears: "In {years} years",
     equityShare: "equity share",
@@ -1163,7 +1163,7 @@ export default function PortfolioSimulator() {
                     fontSize: 32,
                   }}
                 >
-                  CHF {fmt(potentialReturn)}
+                  {fmt(potentialReturn)} CHF
                 </h2>
                 {/* TODO: Add a popup on the info button click */}
                 <button
