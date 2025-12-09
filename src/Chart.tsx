@@ -1262,8 +1262,10 @@ export default function PortfolioSimulator() {
                     align="left"
                     wrapperStyle={{
                       paddingTop: isLargeBreakpoint ? 32 : 16,
-                      width: "calc(100% - 32px)",
-                      marginLeft: -16,
+                      width: isLargeBreakpoint
+                        ? "calc(100% - 64px)"
+                        : "calc(100% - 32px)",
+                      marginLeft: isLargeBreakpoint ? 0 : -16,
                     }}
                     content={<CustomLegend />}
                   />
