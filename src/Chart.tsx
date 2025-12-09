@@ -702,8 +702,8 @@ export default function PortfolioSimulator() {
         ? legendElement.getBoundingClientRect().height + 64
         : 0;
 
-      const leftMargin = isMediumBreakpoint ? 32 : 27;
-      const rightMargin = isMediumBreakpoint ? 32 : 27;
+      const leftMargin = 32;
+      const rightMargin = 32;
       const chartWidth = rect.width - (leftMargin + rightMargin);
       const pointSpacing = chartWidth / Math.max(1, data.length - 1);
 
@@ -717,7 +717,7 @@ export default function PortfolioSimulator() {
         pointSpacing,
       };
     },
-    [data.length, isMediumBreakpoint]
+    [data.length]
   );
 
   // Helper function to calculate the tooltip Y position
@@ -1158,8 +1158,8 @@ export default function PortfolioSimulator() {
                   data={data}
                   onMouseMove={handleMouseMove}
                   margin={{
-                    left: isMediumBreakpoint ? 32 : 27,
-                    right: isMediumBreakpoint ? 32 : 27,
+                    left: 32,
+                    right: 32,
                     top: 32,
                     bottom: 32,
                   }}
@@ -1263,7 +1263,7 @@ export default function PortfolioSimulator() {
                     wrapperStyle={{
                       paddingTop: isLargeBreakpoint ? 32 : 16,
                       width: "calc(100% - 32px)",
-                      marginLeft: -11,
+                      marginLeft: -16,
                     }}
                     content={<CustomLegend />}
                   />
