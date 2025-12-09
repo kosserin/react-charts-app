@@ -286,50 +286,77 @@ export function useWindowSize() {
   return size;
 }
 
-// Future Value with monthly contribution
-function futureValueMonthly(
-  start: number,
-  monthly: number,
-  annualRate: number,
-  months: number
+// Future Value with periodic compounding and contributions
+// A = P(1 + r/n)^(n*t) + PMT * ((1 + r/n)^(n*t) - 1) / (r/n)
+function calculateCompoundInterest(
+  P: number, // initial principal
+  PMT: number, // monthly contribution
+  r: number, // annual interest rate as a decimal, e.g. 0.0665 for 6.65%
+  t: number, // number of years
+  n: number = 12 // number of compoundings per year
 ) {
-  const r = annualRate / 12;
-  if (r === 0) return start + monthly * months;
-  const growth = Math.pow(1 + r, months);
-  return start * growth + monthly * ((growth - 1) / r);
+  // Handle zero interest rate to avoid division by zero
+  if (r === 0) {
+    return P + PMT * n * t;
+  }
+
+  return (
+    P * Math.pow(1 + r / n, n * t) +
+    (PMT * (Math.pow(1 + r / n, n * t) - 1)) / (r / n)
+  );
 }
 
 // Generate data points per year
 function buildData(
   age: number,
-  annual: number,
-  start: number,
+  annualAmount: number,
+  startingAmount: number,
   years: number,
   rates: { cash: number; expected: number; best: number; worst: number }
 ) {
-  const monthly = annual / 12;
-
   return Array.from({ length: years + 1 }, (_, i) => {
-    const months = i * 12;
+    const year = i;
     const yearLabel = `${age + i}`;
 
-    // Convert percentage rates to decimal (e.g., 2.41 -> 0.0241)
+    const monthlyContribution = annualAmount / 12;
+
+    // Convert percentage rates to decimal (e.g., 6.65 -> 0.0665)
     const cashRate = rates.cash / 100;
     const expectedRate = rates.expected / 100;
     const bestRate = rates.best / 100;
     const worstRate = rates.worst / 100;
 
-    const cash = futureValueMonthly(start, monthly, cashRate, months);
-    const expected = futureValueMonthly(start, monthly, expectedRate, months);
-    const best = futureValueMonthly(start, monthly, bestRate, months);
-    const worst = futureValueMonthly(start, monthly, worstRate, months);
+    const cash = calculateCompoundInterest(
+      startingAmount,
+      monthlyContribution,
+      cashRate,
+      year
+    );
+    const expected = calculateCompoundInterest(
+      startingAmount,
+      monthlyContribution,
+      expectedRate,
+      year
+    );
+    const best = calculateCompoundInterest(
+      startingAmount,
+      monthlyContribution,
+      bestRate,
+      year
+    );
+    const worst = calculateCompoundInterest(
+      startingAmount,
+      monthlyContribution,
+      worstRate,
+      year
+    );
 
     return {
       year: yearLabel,
-      cash: cash,
-      expected: expected,
-      best: best,
-      worst: worst,
+      cash,
+      expected,
+      best,
+      worst,
     };
   });
 }
