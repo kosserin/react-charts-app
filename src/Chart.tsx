@@ -201,7 +201,7 @@ const RISK_TABLE: Record<
     label: "Balanced 45",
     equityShare: 0.45,
     cash: 0.15,
-    worst: -4.80,
+    worst: -4.8,
     best: 6.66,
     expected: 3.78,
   },
@@ -209,7 +209,7 @@ const RISK_TABLE: Record<
     label: "Dynamic 65",
     equityShare: 0.65,
     cash: 0.15,
-    worst: -4.90,
+    worst: -4.9,
     best: 8.61,
     expected: 5.2,
   },
@@ -698,7 +698,6 @@ export default function PortfolioSimulator() {
   const chartRef = React.useRef(null);
 
   const { width } = useWindowSize();
-  console.debug("width", width);
   // Use safe defaults for SSR - assume desktop on server, then update on client
   const isLargeBreakpoint =
     isMounted && width !== undefined ? width >= 1200 : false;
@@ -723,7 +722,6 @@ export default function PortfolioSimulator() {
       if (!svg) return null;
 
       const rect = svg.getBoundingClientRect();
-      console.debug("rect", rect);
       const legendElement = container.querySelector(".recharts-legend-wrapper");
       const legendHeight = legendElement
         ? legendElement.getBoundingClientRect().height + 64
@@ -804,14 +802,6 @@ export default function PortfolioSimulator() {
       const tooltipY = calculateTooltipYPosition(rect.height, legendHeight);
       setTooltipPosition(tooltipY);
 
-      console.debug("Calculated position:", {
-        xPosition,
-        yPosition,
-        pointSpacing,
-        tooltipY,
-        legendHeight,
-      });
-
       // Trigger tooltip at the calculated position
       triggerTooltipAtPosition(svg, xPosition, yPosition);
     }, ANIMATION_DURATION);
@@ -838,10 +828,6 @@ export default function PortfolioSimulator() {
         state.activeTooltipIndex !== tooltipIndex
       ) {
         setTooltipIndex(parseInt(state.activeTooltipIndex));
-        console.debug(
-          "onMouseMove triggered, activeIndex:",
-          state.activeTooltipIndex
-        );
       }
     },
     [tooltipIndex]
